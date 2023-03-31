@@ -1,0 +1,26 @@
+{
+  "name": "behance-image-downloader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "repo": "https://github.com/ViRT1ST/behance-image-downloader",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ViRT1ST",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^19.7.5",
+    "transliteration": "^2.3.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.37.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.7"
+  }
+}
