@@ -6,7 +6,7 @@ const { transliterate } = require('transliteration');
 let appConfig = {
   inMoodboardTimeout: 10000,
   betweenProjectsDelay: 1000,
-  betweenDownloadsDelay: 1000,
+  betweenDownloadsDelay: 500,
   page: null,
   outputDir: null,
   userUrls: [],
@@ -118,9 +118,19 @@ function replaceNonEnglishBySymbol(string, symbol) {
   return string.replace(/[^a-zA-Z0-9]/g, symbol);
 }
 
+function removeMultipleDashes(string) {
+  return string.replace(/-+/g, '-');
+}
+
+function convertToLatinized(string) {
+  return transliterateString(string);
+}
+
 function convertToKebabCase(string) {
-  return replaceNonEnglishBySymbol(transliterateString(string), '-')
-    .toLowerCase().replace(/--/g, '-');
+  string = convertToLatinized(string);
+  string = replaceNonEnglishBySymbol(string, '-');
+  string = removeMultipleDashes(string);
+  return string.toLowerCase();
 }
 
 async function parseProjectData(url) {
@@ -149,10 +159,7 @@ async function parseProjectData(url) {
 }
 
 function correctProjectData(data) {
-  const { title, owners, url, id, imgUrls } = data;
-
-  const normalizedTitle = convertToKebabCase(title);
-  const normalizedOwners = convertToKebabCase(owners);
+  const { imgUrls } = data;
 
   const replacements = [
     'project_modules/2800/',
@@ -171,7 +178,11 @@ function correctProjectData(data) {
     return url;
   });
 
-  return { id, url, title, owners, normalizedTitle, normalizedOwners, images };
+
+  const correctedData = { ...data, images };
+  delete correctedData.imgUrls;
+
+  return correctedData;
 }
 
 async function getProjectData(url) {
@@ -185,12 +196,8 @@ async function downloadFile(url, path) {
   const fileStream = fs.createWriteStream(path);
   await new Promise((resolve, reject) => {
     res.body.pipe(fileStream);
-    res.body.on('error', () => {
-      reject();
-    });
-    fileStream.on('finish', () => {
-      resolve();
-    });
+    res.body.on('error', reject);
+    fileStream.on('finish', resolve);
   });
 }
 
@@ -199,57 +206,67 @@ function addZeroForNumberLessTen(number) {
 }
 
 function addProjectDataToExif(filename, data) {
-  const getBase64DataFromJpegFile = (filename) => fs.readFileSync(filename).toString('binary');
-  const getExifFromJpegFile = (filename) => piexif.load(getBase64DataFromJpegFile(filename));
+  if (/\.jpe?g$/i.test(filename)) {
+    const getBase64DataFromJpegFile = (filename) => fs.readFileSync(filename).toString('binary');
+    const getExifFromJpegFile = (filename) => piexif.load(getBase64DataFromJpegFile(filename));
 
-  const exifData = getExifFromJpegFile(filename);
-  const imageData = getBase64DataFromJpegFile(filename);
-  const projectData = JSON.stringify(data);
+    const exifData = getExifFromJpegFile(filename);
+    const imageData = getBase64DataFromJpegFile(filename);
+    const jsonData = JSON.stringify(data);
 
-  /* Good fields to store information  */
-  /* exifData['0th'][piexif.ImageIFD.ImageDescription] */
-  /* exifData.Exif[piexif.ExifIFD.UserComment] */
-  exifData.Exif[piexif.ExifIFD.UserComment] = projectData;
+    exifData['0th'][piexif.ImageIFD.ImageDescription] = jsonData;
 
-  const newExifBinary = piexif.dump(exifData);
-  const newPhotoData = piexif.insert(newExifBinary, imageData);
+    const newExifBinary = piexif.dump(exifData);
+    const newPhotoData = piexif.insert(newExifBinary, imageData);
 
-  const fileBuffer = Buffer.from(newPhotoData, 'binary');
-  fs.writeFileSync(filename, fileBuffer);
+    const fileBuffer = Buffer.from(newPhotoData, 'binary');
+    fs.writeFileSync(filename, fileBuffer);
+  }
+}
+
+function generateFilePath(counter, url, projectData) {
+  const { outputDir } = appConfig;
+  const { owners, title } = projectData;
+
+  const normalizedOwner = convertToKebabCase(owners.split(', ')[0]);
+  const normalizedTitle = convertToKebabCase(title);
+
+  const prefix = 'behance-';
+  const number = addZeroForNumberLessTen(counter);
+  const extension = url.split('.').pop();
+  const template = `${prefix}-${normalizedOwner}-${normalizedTitle}-${number}`;
+  const filename = removeMultipleDashes(`${template}.${extension}`);
+  const path = `${outputDir}/${filename}`;
+
+  return path;
 }
 
 async function downloadProjects() {
-  const {
-    betweenProjectsDelay,
-    betweenDownloadsDelay,
-    page,
-    outputDir,
-    projects
-  } = appConfig;
+  const { betweenProjectsDelay, betweenDownloadsDelay, page, projects } = appConfig;
 
   for (const project of projects) {
     const projectData = await getProjectData(project);
-    console.log(projectData);
 
-    const { id, normalizedTitle, normalizedOwners, images } = projectData;
+    const { id, url, owners, title, images } = projectData;
 
     let counter = 1;
-    for (const item of images) {
-      const prefix = 'behance_';
-      const number = addZeroForNumberLessTen(counter);
-      const extension = item.split('.').pop();
-      const template = `${normalizedOwners}_${id}-${normalizedTitle}`;
-      const filename = `${outputDir}/${prefix}${template}_${number}.${extension}`;
+    for (const image of images) {
+      const path = generateFilePath(counter, image, projectData);
+      await downloadFile(image, path);
+      console.log(path);
 
-      await downloadFile(item, filename);
-      console.log(filename);
+      const imageData = {
+        site: 'Behance',
+        id,
+        owners: convertToLatinized(owners),
+        title: convertToLatinized(title),
+        url,
+        image
+      };
+      addProjectDataToExif(path, imageData);
 
-      const imageData = { ...projectData, imageUrl: item };
-      delete imageData.images;
-      addProjectDataToExif(filename, imageData);
-
-      counter += 1;
       await page.waitForTimeout(betweenDownloadsDelay);
+      counter += 1;
     }
 
     await page.waitForTimeout(betweenProjectsDelay);

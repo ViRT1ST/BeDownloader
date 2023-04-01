@@ -25,13 +25,15 @@ const browserOptions = {
 const userConfig = {
   inMoodboardTimeout: 10000,
   betweenProjectsDelay: 1000,
-  betweenDownloadsDelay: 1000,
+  betweenDownloadsDelay: 500,
   page: null,
   outputDir: 'E:/Downloads',
   userUrls: [
     // 'https://www.behance.net/collection/202865305/TEST',
-    'https://www.behance.net/gallery/166160265/Koala-House'
+    // 'https://www.behance.net/gallery/166160265/Koala-House'
     // 'https://www.behance.net/gallery/155176025/Private-Offices'
+    // 'https://www.behance.net/collection/202920365/ReDL'
+    'https://www.behance.net/gallery/151226985/_'
   ],
 };
 
@@ -50,6 +52,5 @@ async function runBrowser() {
 
   browser.close();
 }
-
 
 runBrowser();
