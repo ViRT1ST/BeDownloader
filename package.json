@@ -11,8 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "node-fetch": "^2.6.9",
+    "piexifjs": "^1.0.6",
     "puppeteer": "^19.7.5",
-    "request": "^2.88.2",
     "transliteration": "^2.3.5"
   },
   "devDependencies": {

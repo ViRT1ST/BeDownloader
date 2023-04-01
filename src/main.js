@@ -30,8 +30,8 @@ const userConfig = {
   outputDir: 'E:/Downloads',
   userUrls: [
     // 'https://www.behance.net/collection/202865305/TEST',
-    // 'https://www.behance.net/gallery/166160265/Koala-House'
-    'https://www.behance.net/gallery/155176025/Private-Offices'
+    'https://www.behance.net/gallery/166160265/Koala-House'
+    // 'https://www.behance.net/gallery/155176025/Private-Offices'
   ],
 };
 
@@ -47,8 +47,6 @@ async function runBrowser() {
   await generateProjectsList();
 
   await downloadProjects();
-
-
 
   browser.close();
 }

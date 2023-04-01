@@ -1,5 +1,6 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
+const piexif = require('piexifjs');
 const { transliterate } = require('transliteration');
 
 let appConfig = {
@@ -141,14 +142,14 @@ async function parseProjectData(url) {
 
     const imgList = Array.from(document.querySelectorAll('img'));
     const srcList = imgList.map((item) => item.getAttribute('src'));
-    const projectImages = srcList.filter((item) => item.includes('project_modules'));
+    const imgUrls = srcList.filter((item) => item.includes('project_modules'));
 
-    return { title, owners, url, id, projectImages };
+    return { title, owners, url, id, imgUrls };
   });
 }
 
 function correctProjectData(data) {
-  const { title, owners, url, id, projectImages } = data;
+  const { title, owners, url, id, imgUrls } = data;
 
   const normalizedTitle = convertToKebabCase(title);
   const normalizedOwners = convertToKebabCase(owners);
@@ -163,7 +164,7 @@ function correctProjectData(data) {
     'project_modules/fs/'
   ];
 
-  const images = projectImages.map((url) => {
+  const images = imgUrls.map((url) => {
     for (const replacement of replacements) {
       url = url.replace(replacement, 'project_modules/source/');
     }
@@ -194,8 +195,27 @@ async function downloadFile(url, path) {
 }
 
 function addZeroForNumberLessTen(number) {
-  console.log(number);
   return number < 10 ? `0${number}` : number.toString();
+}
+
+function addProjectDataToExif(filename, data) {
+  const getBase64DataFromJpegFile = (filename) => fs.readFileSync(filename).toString('binary');
+  const getExifFromJpegFile = (filename) => piexif.load(getBase64DataFromJpegFile(filename));
+
+  const exifData = getExifFromJpegFile(filename);
+  const imageData = getBase64DataFromJpegFile(filename);
+  const projectData = JSON.stringify(data);
+
+  /* Good fields to store information  */
+  /* exifData['0th'][piexif.ImageIFD.ImageDescription] */
+  /* exifData.Exif[piexif.ExifIFD.UserComment] */
+  exifData.Exif[piexif.ExifIFD.UserComment] = projectData;
+
+  const newExifBinary = piexif.dump(exifData);
+  const newPhotoData = piexif.insert(newExifBinary, imageData);
+
+  const fileBuffer = Buffer.from(newPhotoData, 'binary');
+  fs.writeFileSync(filename, fileBuffer);
 }
 
 async function downloadProjects() {
@@ -209,6 +229,8 @@ async function downloadProjects() {
 
   for (const project of projects) {
     const projectData = await getProjectData(project);
+    console.log(projectData);
+
     const { id, normalizedTitle, normalizedOwners, images } = projectData;
 
     let counter = 1;
@@ -217,12 +239,16 @@ async function downloadProjects() {
       const number = addZeroForNumberLessTen(counter);
       const extension = item.split('.').pop();
       const template = `${normalizedOwners}_${id}-${normalizedTitle}`;
-      const path = `${outputDir}/${prefix}${template}_${number}.${extension}`;
+      const filename = `${outputDir}/${prefix}${template}_${number}.${extension}`;
 
-      await downloadFile(item, path);
+      await downloadFile(item, filename);
+      console.log(filename);
+
+      const imageData = { ...projectData, imageUrl: item };
+      delete imageData.images;
+      addProjectDataToExif(filename, imageData);
+
       counter += 1;
-      console.log(path);
-
       await page.waitForTimeout(betweenDownloadsDelay);
     }
 
