@@ -14,31 +14,37 @@ const config = {
 };
 
 function getPuppeteerSettings() {
+  if (isDevMode) {
+    return {
+      args: [],
+      defaultViewport: null,
+      headless: false,
+    };
+  }
+
   return {
-    args: isDevMode ? [] : ['--start-maximized'],
-    defaultViewport: isDevMode ? null : { width: 1920, height: 1080 },
-    headless: !isDevMode,
+    args: ['--start-maximized'],
+    defaultViewport: { width: 1920, height: 1080 },
+    headless: true,
   };
 }
 
 function getElectronSettings() {
   return {
-    title: 'ImageShrink',
+    title: 'Behance Image Downloader',
     width: 600,
-    height: 650,
+    height: 620,
     icon: './app/img/icons/Icon_256x256.png',
     backgroundColor: 'white',
+    resizable: true,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
     },
-    resizable: true,
-    autoHideMenuBar: true,
   };
 }
-
-
 
 module.exports.config = config;
 module.exports.getPuppeteerSettings = getPuppeteerSettings;

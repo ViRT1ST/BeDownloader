@@ -59,14 +59,16 @@ app.whenReady().then(() => {
   }
 });
 
-ipcMain.on('action:start', (e, data) => {
-  config.outputDir = data.dest;
-  config.userUrls = data.urls;
+ipcMain.on('form:start', (e, data) => {
+  const { dest, urls } = data;
+
+  config.outputDir = dest;
+  config.userUrls = urls;
 
   if (config.userUrls.length === 0) {
-    mainWindow.webContents.send('action:puppeteer', { start: false });
+    mainWindow.webContents.send('puppeteer:start', { start: false });
   } else {
-    mainWindow.webContents.send('action:puppeteer', { start: true });
+    mainWindow.webContents.send('puppeteer:start', { start: true });
     runPuppeteer();
   }
 });

@@ -10,9 +10,9 @@ const {
   saveObjectIntoImageExif
 } = require('./utils');
 
+
 async function disableImagesLoading() {
   const { page } = config;
-
   await page.setRequestInterception(true);
 
   page.on('request', (req) => {
@@ -22,7 +22,6 @@ async function disableImagesLoading() {
 
 async function enableImagesLoading() {
   const { page } = config;
-
   await page.setRequestInterception(false);
 }
 
@@ -63,16 +62,19 @@ async function moodboardScroller() {
   }, timeout);
 }
 
+function sendToRenderer(dest, data) {
+  config.mainWindow.webContents.send(dest, data);
+}
+
 async function getMoodboardLinks(url) {
-  const { page, mainWindow } = config;
+  const { page } = config;
   const id = getIdByUrl(url);
 
-  mainWindow.webContents.send('action:mbloading', { id });
+  sendToRenderer('moodboard:loading', { id });
   await page.goto(url);
   await page.waitForSelector('.Collection-wrapper-LHa');
 
-
-  mainWindow.webContents.send('action:mbscrolling', { id });
+  sendToRenderer('moodboard:scrolling', { id });
   await moodboardScroller(page);
 
   return page.evaluate(() => {
@@ -84,7 +86,7 @@ async function getMoodboardLinks(url) {
 }
 
 async function generateProjectsList() {
-  const { userUrls, mainWindow } = config;
+  const { userUrls } = config;
 
   let projects = [];
 
@@ -95,10 +97,8 @@ async function generateProjectsList() {
     } else {
       projects.push(url);
     }
-    mainWindow.webContents.send('action:completed', {
-      done: 0,
-      total: projects.length
-    });
+
+    sendToRenderer('completed:update', { done: 0, total: projects.length });
   }
 
   config.projects = projects;
@@ -107,10 +107,10 @@ async function generateProjectsList() {
 
 
 async function parseProjectData(url) {
-  const { inProjectTimeout, page, mainWindow } = config;
+  const { inProjectTimeout, page } = config;
   const id = getIdByUrl(url);
 
-  mainWindow.webContents.send('action:prloading', { id });
+  sendToRenderer('project:loading', { id });
 
   await page.goto(url);
   await page.waitForTimeout(inProjectTimeout);
@@ -193,13 +193,11 @@ function createImageData(projectData, imageUrl) {
 }
 
 async function downloadProjects() {
-  const { betweenDownloadsDelay, page, outputDir, projects, mainWindow } = config;
-  console.log('outputDir', outputDir);
+  const { betweenDownloadsDelay, page, outputDir, projects } = config;
 
   createDirIfNotExists(outputDir);
 
-  let completedProjects = 0;
-  let completedImages = 0;
+  let projectsCompleted = 0;
 
   for (const project of projects) {
     const projectData = await getProjectData(project);
@@ -216,12 +214,7 @@ async function downloadProjects() {
       const imageData = createImageData(projectData, image);
       saveObjectIntoImageExif(imageData, path);
 
-      completedImages += 1;
-      mainWindow.webContents.send('action:images', {
-        count: completedImages
-      });
-
-      mainWindow.webContents.send('action:prdownload', {
+      sendToRenderer('project:download', {
         id: projectData.id,
         current: i + 1,
         total: images.length
@@ -230,14 +223,14 @@ async function downloadProjects() {
       await page.waitForTimeout(betweenDownloadsDelay);
     }
 
-    completedProjects += 1;
-    mainWindow.webContents.send('action:completed', {
-      done: completedProjects,
+    projectsCompleted += 1;
+    sendToRenderer('completed:update', {
+      done: projectsCompleted,
       total: projects.length
     });
   }
 
-  mainWindow.webContents.send('action:done');
+  sendToRenderer('form:done', null);
 }
 
 module.exports.disableImagesLoading = disableImagesLoading;

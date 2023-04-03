@@ -11,8 +11,8 @@
 </head>
 <body>
   <div class="container">
-    <!-- <h5 class="app-title">Behance Image Downloader</h5> -->
-    <form id="image-form">
+
+    <form id="app-form">
       <p class="label"><strong>URL List:</strong></p>
       <textarea id="urls-list" class='bordered' placeholder="Drop here link(s) to download.
 Moodboards and projects are supported.
@@ -23,35 +23,24 @@ https://www.behance.net/gallery/123456789/Modern-Interior"></textarea>
 
 
       <p class="label"><strong>Destination:</strong></p>
-      <textarea id="destination-input" class='bordered' placeholder="Folder to save images..."></textarea>
+      <textarea id="dest-input" class='bordered' placeholder="Folder to save images..."></textarea>
 
       <p class="label"><strong>Information:</strong></p>
       <div class="info-area bordered">
-        <p class="info-item" style="display: none">
-          <span class="info-title">User links:</span>
-          <span id="info-links" class="info-content">0</span>
-        </p>
         <p class="info-item">
           <span class="info-title">Current status:</span>
-          <span id="info-action" class="info-content">none</span>
-        </p>
-        <p class="info-item" style="display: none">
-          <span class="info-title">Images downloaded:</span>
-          <span id="info-images" class="info-content">0</span>
+          <span class="info-content" id="info-status" >none</span>
         </p>
         <p class="info-item">
           <span class="info-title">Projects completed:</span>
-          <span id="info-completed" class="info-content">0</span>
+          <span class="info-content" id="info-completed">none</span>
         </p>
       </div>
 
-      <button id="download-button" type="submit" class="btn" value="Download">
+      <button class="btn" id="submit-btn" type="submit">
         Download
       </button>
-      <!-- <br><br><br><br><hr> -->
     </form>
-
-
 
   </div>
 
