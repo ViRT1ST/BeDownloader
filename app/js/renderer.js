@@ -28,12 +28,12 @@ ipcRenderer.on('puppeteer:start', (e, { start }) => {
   }
 });
 
-ipcRenderer.on('moodboard:loading', (e, data) => {
-  infoStatus.innerHTML = `loading moodboard ${data.id} ...`;
+ipcRenderer.on('moodboard:loading', (e, { id }) => {
+  infoStatus.innerHTML = `loading moodboard ${id} ...`;
 });
 
-ipcRenderer.on('moodboard:scrolling', (e, data) => {
-  infoStatus.innerHTML = `scrolling moodboard ${data.id} to get all projects ...`;
+ipcRenderer.on('moodboard:scrolling', (e, { id }) => {
+  infoStatus.innerHTML = `scrolling moodboard ${id} to get all projects ...`;
 });
 
 ipcRenderer.on('completed:update', (e, { done, total }) => {

@@ -59,9 +59,7 @@ app.whenReady().then(() => {
   }
 });
 
-ipcMain.on('form:start', (e, data) => {
-  const { dest, urls } = data;
-
+ipcMain.on('form:start', (e, { dest, urls }) => {
   config.outputDir = dest;
   config.userUrls = urls;
 
