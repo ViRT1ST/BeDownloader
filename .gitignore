@@ -1,7 +1,9 @@
 # MY DATA
+.backups/
 project.txt
 test.js
 *.jpg
+
 
 # Logs
 logs

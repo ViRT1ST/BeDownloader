@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
+  <link rel="stylesheet" href="css/materialize.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <title>Behance Image Downloader</title>
+</head>
+<body>
+  <div class="container">
+    <!-- <h5 class="app-title">Behance Image Downloader</h5> -->
+    <form id="image-form">
+      <p class="label"><strong>URL List:</strong></p>
+      <textarea id="urls-list" class='bordered' placeholder="Drop here link(s) to download.
+Moodboards and projects are supported.
+
+Examples:
+https://www.behance.net/collection/123456789/Best-Archviz
+https://www.behance.net/gallery/123456789/Modern-Interior"></textarea>
+
+
+      <p class="label"><strong>Destination:</strong></p>
+      <textarea id="destination-input" class='bordered' placeholder="Folder to save images..."></textarea>
+
+      <p class="label"><strong>Information:</strong></p>
+      <div class="info-area bordered">
+        <p class="info-item" style="display: none">
+          <span class="info-title">User links:</span>
+          <span id="info-links" class="info-content">0</span>
+        </p>
+        <p class="info-item">
+          <span class="info-title">Current status:</span>
+          <span id="info-action" class="info-content">none</span>
+        </p>
+        <p class="info-item" style="display: none">
+          <span class="info-title">Images downloaded:</span>
+          <span id="info-images" class="info-content">0</span>
+        </p>
+        <p class="info-item">
+          <span class="info-title">Projects completed:</span>
+          <span id="info-completed" class="info-content">0</span>
+        </p>
+      </div>
+
+      <button id="download-button" type="submit" class="btn" value="Download">
+        Download
+      </button>
+      <!-- <br><br><br><br><hr> -->
+    </form>
+
+
+
+  </div>
+
+  <script src="js/materialize.js"></script>
+  <script src="js/renderer.js"></script>
+</body>
+</html>

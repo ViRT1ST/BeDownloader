@@ -1,0 +1,87 @@
+.container {
+	width: 580px;
+	/* margin-top: 70px; */
+	margin-top: 30px;
+	padding: 0 20px;
+}
+
+.about {
+	width: 100%;
+}
+
+.btn {
+	width: 100%;
+}
+
+.output {
+	margin-top: 40px;
+}
+
+#output-path {
+	font-weight: bold;
+}
+
+#toast-container {
+	position: fixed !important;
+	top: 0px !important;
+	left: 0px !important;
+}
+
+/* ======================================= */
+
+textarea {
+	padding: 10px;
+	resize: none;
+	border-radius: 3px;
+}
+
+textarea::placeholder {
+	color: gray;
+}
+
+.bordered {
+	margin-bottom: 20px;
+	margin-top: 0;
+}
+
+.app-title {
+	padding-bottom: 20px;
+}
+
+#urls-list {
+	height: 200px;
+	width: 100%;
+}
+
+.label {
+	text-align: left;
+	margin-top: 0;
+	margin-bottom: 4px;
+}
+
+#destination-input {
+	height: 41px;
+	margin-bottom: 20px;
+}
+
+.container {
+	align-items: flex-start;
+}
+
+.info-area {
+	padding: 10px;
+	border: 1px solid gray;
+	border-radius: 3px;
+}
+
+.info-item {
+	margin: 0;
+}
+
+.info-title {
+	font-weight: 500;
+}
+
+#download-button {
+	margin-top: 15px;
+}
