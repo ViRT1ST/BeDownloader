@@ -5,46 +5,45 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
-  <link rel="stylesheet" href="css/materialize.min.css" />
+  <!-- <link rel="stylesheet" href="css/materialize.min.css" /> -->
   <link rel="stylesheet" href="css/style.css" />
   <title>Behance Image Downloader</title>
 </head>
 <body>
-  <div class="container">
+  <form id="form">
 
-    <form id="app-form">
-      <p class="label"><strong>URL List:</strong></p>
-      <textarea id="urls-list" class='bordered' placeholder="Drop here link(s) to download.
-Moodboards and projects are supported.
+    <div class="settings-container">
+      <section class="urls">
+        <p class="label"><strong>URL List:</strong></p>
+        <textarea id="urls-input" placeholder="Drop here link(s) to download.&#13;Moodboards and projects are supported.&#13;&#13;Examples:&#13;https://www.behance.net/collection/123456789/Best-Archviz&#13;https://www.behance.net/gallery/123456789/Modern-Interior"></textarea>
+      </section>
 
-Examples:
-https://www.behance.net/collection/123456789/Best-Archviz
-https://www.behance.net/gallery/123456789/Modern-Interior"></textarea>
+      <section class="destination">
+        <p class="label"><strong>Destination:</strong></p>
+        <input id="destination-input" type="text" placeholder="Folder to save images..."></input>
+      </section>
 
+      <section class="information">
+        <p class="label"><strong>Information:</strong></p>
+        <div class="information-wrapper">
+          <p class="information-item">
+            <span class="information-title">Current status:</span>
+            <span class="information-content" id="information-status" >none</span>
+          </p>
+          <p class="information-item">
+            <span class="information-title">Projects completed:</span>
+            <span class="information-content" id="information-completed">none</span>
+          </p>
+        </div>
+      </section>
+    </div>
 
-      <p class="label"><strong>Destination:</strong></p>
-      <textarea id="dest-input" class='bordered' placeholder="Folder to save images..."></textarea>
+    <div class="submit-container">
+      <button class="btn" id="submit-btn" type="submit">Download</button>
+    </div>
+  
+  </form>
 
-      <p class="label"><strong>Information:</strong></p>
-      <div class="info-area bordered">
-        <p class="info-item">
-          <span class="info-title">Current status:</span>
-          <span class="info-content" id="info-status" >none</span>
-        </p>
-        <p class="info-item">
-          <span class="info-title">Projects completed:</span>
-          <span class="info-content" id="info-completed">none</span>
-        </p>
-      </div>
-
-      <button class="btn" id="submit-btn" type="submit">
-        Download
-      </button>
-    </form>
-
-  </div>
-
-  <script src="js/materialize.js"></script>
   <script src="js/renderer.js"></script>
 </body>
 </html>

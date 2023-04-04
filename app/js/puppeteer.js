@@ -205,6 +205,12 @@ async function downloadProjects() {
     const { images } = projectData;
 
     for (let i = 0; i < images.length; i++) {
+      sendToRenderer('project:download', {
+        id: projectData.id,
+        current: i + 1,
+        total: images.length
+      });
+
       const image = images[i];
 
       const path = generateFilePath(projectData, image, i + 1);
@@ -213,12 +219,6 @@ async function downloadProjects() {
 
       const imageData = createImageData(projectData, image);
       saveObjectIntoImageExif(imageData, path);
-
-      sendToRenderer('project:download', {
-        id: projectData.id,
-        current: i + 1,
-        total: images.length
-      });
 
       await page.waitForTimeout(betweenDownloadsDelay);
     }

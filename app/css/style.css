@@ -1,79 +1,146 @@
-.container {
-	align-items: flex-start;
-	width: 580px;
-	margin-top: 30px;
-	padding: 0 20px;
-}
-
-.about {
-	width: 100%;
-}
-
-.btn {
-	width: 100%;
-}
-
-.output {
-	margin-top: 40px;
-}
-
-#output-path {
-	font-weight: bold;
-}
-
-#toast-container {
-	position: fixed !important;
-	top: 0px !important;
-	left: 0px !important;
-}
-
-/* ======================================= */
-
-textarea {
-	padding: 10px;
-	resize: none;
-	border-radius: 3px;
-}
-
-textarea::placeholder {
-	color: gray;
-}
-
-.bordered {
-	margin-bottom: 20px;
-	margin-top: 0;
-}
-
-.label {
-	text-align: left;
-	margin-top: 0;
-	margin-bottom: 4px;
-}
-
-#urls-list {
-	height: 200px;
-	width: 100%;
-}
-
-#dest-input {
-	height: 41px;
-	margin-bottom: 20px;
-}
-
-.info-area {
-	padding: 10px;
-	border: 1px solid gray;
-	border-radius: 3px;
-}
-
-.info-item {
+* {
+	box-sizing: border-box;
+	cursor: default;
 	margin: 0;
 }
 
-.info-title {
+html {
+	background-color: white;
+	color: #000;
+	font-size: 15px;
+	line-height: 1.5;
+}
+
+strong {
+	font-weight: 500;
+}
+
+::placeholder {
+	color: gray;
+}
+
+/* html {
+	filter: invert();
+} */
+
+html, textarea, input, button {
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+}
+
+textarea, input {
+	cursor: text;
+	display: block;
+}
+
+textarea, input, .information-wrapper {
+	border-radius: 3px;
+	border: 1px solid gray;
+	outline: 0;
+	padding: 10px;
+}
+
+textarea:focus, input:focus {
+	border-radius: 4px;
+	border: 2px solid #333;
+	outline: 0;
+	padding: 9px;
+}
+
+textarea, input, button {
+	font-size: 100%;
+	line-height: 1.15;
+	width: 100%;
+}
+
+textarea {
+	resize: none;
+}
+
+button {
+	background-color: #26a69a;
+	border: none;
+	color: #fff;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 14px;
+	height: 36px;
+	letter-spacing: .5px;
+	line-height: 36px;
+	outline: 0;
+	padding: 0 16px;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+	transition: background-color .2s ease-out;
+	vertical-align: middle;
+}
+
+button:hover {
+	background-color: #2bbbad;
+}
+
+/* button:focus {
+	background-color: #1d7d74;
+} */
+
+button.disabled {
+	pointer-events: none;
+	background-color: #DFDFDF !important;
+	color: #9F9F9F !important;
+	cursor: default;
+}
+
+section {
+	margin-bottom: 20px;
+}
+
+
+#form {
+	display: flex;
+	flex-direction: column;
+	margin: 0 auto;
+	padding: 15px 25px 35px 25px;
+	width: 100%;
+	min-height: 100vh;
+}
+
+.settings-container {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.urls {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.label {
+	margin-bottom: 4px;
+	margin-top: 0;
+	
+}
+
+#urls-input {
+	width: 100%;
+	flex-grow: 1;
+}
+
+#destination-input {
+	height: 41px;
+}
+
+.information-item {
+	margin: 0;
+}
+
+.information-title {
 	font-weight: 500;
 }
 
 #submit-btn {
-	margin-top: 15px;
+	margin-top: 10px;
 }
+
+
