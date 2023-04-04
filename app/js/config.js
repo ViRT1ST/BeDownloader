@@ -33,9 +33,8 @@ function getElectronSettings() {
   return {
     title: 'Behance Image Downloader',
     width: 600,
-    height: 620,
-    icon: './app/img/icons/Icon_256x256.png',
-    backgroundColor: 'white',
+    height: 600,
+    icon: './app/img/icons/Icon_512x512.png',
     resizable: true,
     autoHideMenuBar: true,
     webPreferences: {
