@@ -137,45 +137,34 @@ async function parseProjectData(url) {
 }
 
 function checkImageUrl(url) {
-  const bannedList = [
+  const badUrls = [
     'static.kuula.io',
     'files.kuula.io/users/',
     'files.kuula.io/profiles/'
   ];
 
   const jpegOrPng = /\.jpe?g|png$/i.test(url);
-  const notBanned = !bannedList.some((item) => url.includes(item));
+  const notBadUrl = !badUrls.some((item) => url.includes(item));
   const notBase64 = !/base64/i.test(url);
   const projectModule = /\/project_modules\//i.test(url);
   const externalImage = !/behance\.net/i.test(url);
 
   const goodSource = (projectModule || externalImage);
-  return jpegOrPng && notBanned && notBase64 && goodSource;
+  return jpegOrPng && notBadUrl && notBase64 && goodSource;
 }
 
 function correctProjectData(data) {
   const { imgUrls } = data;
 
-  const replacements = [
-    'project_modules/2800/',
-    'project_modules/2800_opt_1/',
-    'project_modules/1400/',
-    'project_modules/1400_opt_1/',
-    'project_modules/disp/',
-    'project_modules/max_1200/',
-    'project_modules/fs/'
-  ];
-
   const filteredUrls = imgUrls.concat(reqImages).filter(checkImageUrl);
 
-  const goodUrls = filteredUrls.map((url) => {
-    for (const replacement of replacements) {
-      url = url.replace(replacement, 'project_modules/source/');
-    }
-    return url;
+  const correctedUrls = filteredUrls.map((url) => {
+    return url.includes('/project_modules/')
+      ? url.replace(/([\w.-]+)(\/[\w.-]+)$/, 'source$2')
+      : url;
   });
 
-  const correctedData = { ...data, images: [...new Set(goodUrls)] };
+  const correctedData = { ...data, images: [...new Set(correctedUrls)] };
   delete correctedData.imgUrls;
 
   return correctedData;
