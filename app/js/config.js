@@ -31,7 +31,7 @@ function getPuppeteerSettings() {
 
 function getElectronSettings() {
   return {
-    title: 'Behance Image Downloader',
+    title: 'BeDownloader',
     width: 600,
     height: 600,
     icon: './app/img/icons/Icon_512x512.png',
