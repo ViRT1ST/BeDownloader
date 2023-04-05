@@ -54,6 +54,12 @@ textarea:focus, input:focus {
 	padding: 9px;
 }
 
+input, button {
+	height: 40px;
+	min-height: 40px;
+	max-height: 40px;
+}
+
 textarea {
 	resize: none;
 }
@@ -87,8 +93,14 @@ button.working {
 
 button.disabled {
 	pointer-events: none;
-	background-color: #DFDFDF;
-	color: #9F9F9F;
+	background-color: rgb(148, 148, 148);
+	color: #ffffff;
+	cursor: default;
+}
+
+input.disabled, textarea.disabled {
+	pointer-events: none;
+	background-color: #eee;
 	cursor: default;
 }
 
@@ -127,10 +139,6 @@ section {
 	flex-grow: 1;
 }
 
-#destination-input {
-	height: 41px;
-}
-
 .information-item {
 	margin: 0;
 }
@@ -143,4 +151,16 @@ section {
 	margin-top: 10px;
 }
 
+.destination-inputs {
+	display: flex;
+}
+
+#destination-input {
+	flex-grow: 1;
+}
+
+#destination-btn {
+	width: 100px;
+	margin-left: 10px;
+}
 

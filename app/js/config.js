@@ -1,19 +1,54 @@
-const isDevMode = true;
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
+const ini = require('ini');
+
+const { createDirIfNotExists } = require('./utils');
+
+const isDevMode = false;
 
 const config = {
+  isMac: process.platform === 'darwin',
+  settingsFolder: path.join(os.homedir(), '.bedownloader'),
+  downloadFolder: path.join(os.homedir(), 'behance-downloads'),
   inMoodboardTimeout: 10000,
   inProjectTimeout: 5000,
   betweenProjectsDelay: 1000,
-  betweenDownloadsDelay: 500,
-  isMac: process.platform === 'darwin',
-  isAborted: false,
+  betweenImagesDelay: 500,
   mainWindow: null,
   browserPID: null,
   page: null,
-  outputDir: null,
   userUrls: [],
   projects: [],
+  isAborted: false,
 };
+
+function loadConfig() {
+  try {
+    const path = `${config.settingsFolder}/config.ini`;
+    const { main } = ini.parse(fs.readFileSync(path, 'utf-8'));
+    config.downloadFolder = main.downloadFolder;
+    config.inMoodboardTimeout = main.inMoodboardTimeout;
+    config.inProjectTimeout = main.inProjectTimeout;
+    config.betweenProjectsDelay = main.betweenProjectsDelay;
+    config.betweenImagesDelay = main.betweenImagesDelay;
+  } catch (err) { /* ignore */ }
+}
+
+loadConfig();
+
+function saveConfig() {
+  const path = `${config.settingsFolder}/config.ini`;
+  createDirIfNotExists(config.settingsFolder);
+  const configToSave = {
+    downloadFolder: config.downloadFolder,
+    inMoodboardTimeout: config.inMoodboardTimeout,
+    inProjectTimeout: config.inProjectTimeout,
+    betweenProjectsDelay: config.betweenProjectsDelay,
+    betweenImagesDelay: config.betweenImagesDelay
+  };
+  fs.writeFileSync(path, ini.stringify(configToSave, { section: 'main' }));
+}
 
 function getPuppeteerSettings() {
   if (isDevMode) {
@@ -48,5 +83,7 @@ function getElectronSettings() {
 }
 
 module.exports.config = config;
+module.exports.saveConfig = saveConfig;
+module.exports.getPuppeteerSettings = getPuppeteerSettings;
 module.exports.getPuppeteerSettings = getPuppeteerSettings;
 module.exports.getElectronSettings = getElectronSettings;

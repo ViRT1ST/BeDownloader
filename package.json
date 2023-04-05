@@ -1,6 +1,6 @@
 {
   "name": "bedownloader",
-  "version": "0.0.5",
+  "version": "1.0.1",
   "description": "",
   "main": "main.js",
   "repo": "https://github.com/ViRT1ST/BeDownloader.git",
@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "electron": "^23.2.1",
+    "ini": "^4.0.0",
     "node-fetch": "^2.6.9",
     "piexifjs": "^1.0.6",
     "puppeteer": "^19.7.5",
@@ -21,7 +22,6 @@
     "transliteration": "^2.3.5"
   },
   "devDependencies": {
-
     "electron-packager": "^17.1.1",
     "eslint": "^8.37.0",
     "eslint-config-airbnb": "^19.0.4",

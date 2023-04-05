@@ -1,22 +1,24 @@
 const { ipcRenderer } = require('electron');
 
-const path = require('path');
-const os = require('os');
-
 const urlsInput = document.getElementById('urls-input');
 const destInput = document.getElementById('destination-input');
+const destButton = document.getElementById('destination-btn');
 const infoStatus = document.getElementById('information-status');
 const infoCompleted = document.getElementById('information-completed');
 const button = document.getElementById('start-btn');
 
-destInput.value = path.join(os.homedir(), 'behance-downloads');
-
-function updateUiAsRinning() {
+function updateUiAsRunning() {
+  urlsInput.classList.add('disabled');
+  destInput.classList.add('disabled');
+  destButton.classList.add('disabled');
   button.innerHTML = 'Cancel';
   button.classList.add('working');
 }
 
 function updateUiAsReady() {
+  urlsInput.classList.remove('disabled');
+  destInput.classList.remove('disabled');
+  destButton.classList.remove('disabled');
   button.innerHTML = 'Download';
   button.classList.remove('working');
 }
@@ -34,11 +36,24 @@ button.addEventListener('click', (e) => {
     if (urls.length === 0) {
       infoStatus.innerHTML = '[error] list is empty';
     } else {
-      infoStatus.classList = 'creating task ...';
       ipcRenderer.send('task:start', { dest, urls });
-      updateUiAsRinning();
+      updateUiAsRunning();
     }
   }
+});
+
+destButton.addEventListener('click', () => {
+  ipcRenderer.send('dialog:directory');
+});
+
+ipcRenderer.send('settings:dest');
+
+ipcRenderer.on('settings:dest', (e, { dest }) => {
+  destInput.value = dest;
+});
+
+ipcRenderer.on('task:dest', (e, { dest }) => {
+  destInput.value = dest;
 });
 
 ipcRenderer.on('moodboard:loading', (e, { id }) => {
@@ -65,5 +80,3 @@ ipcRenderer.on('task:done', () => {
   infoStatus.innerHTML = 'all images were downloaded successfully!';
   updateUiAsReady();
 });
-
-

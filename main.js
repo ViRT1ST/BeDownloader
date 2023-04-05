@@ -1,10 +1,10 @@
 const puppeteer = require('puppeteer');
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 
-const { config, getPuppeteerSettings, getElectronSettings } = require('./app/js/config');
+const { config, getPuppeteerSettings, getElectronSettings, saveConfig } = require('./app/js/config');
 
 const {
-  disableImagesLoading,
+  interceptImageRequests,
   generateProjectsList,
   downloadProjects,
 } = require('./app/js/puppeteer');
@@ -18,13 +18,15 @@ async function runPuppeteer() {
   const browser = await puppeteer.launch(settings);
   const page = await browser.newPage();
 
+  config.browserPID = browser.process().pid;
   config.page = page;
 
-  await disableImagesLoading();
-  await generateProjectsList();
-  await downloadProjects();
-
-  browser.close();
+  try {
+    await interceptImageRequests();
+    await generateProjectsList();
+    await downloadProjects();
+    browser.close();
+  } catch (err) { /* ignore */ }
 }
 
 /* ========================================================= */
@@ -48,6 +50,7 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', () => {
+  saveConfig();
   if (!config.isMac) {
     app.quit();
   }
@@ -59,20 +62,33 @@ app.whenReady().then(() => {
   }
 });
 
-ipcMain.on('form:start', (e, { dest, urls }) => {
-  config.outputDir = dest;
-  config.userUrls = urls;
-
-  if (config.userUrls.length === 0) {
-    mainWindow.webContents.send('puppeteer:start', { start: false });
-  } else {
-    mainWindow.webContents.send('puppeteer:start', { start: true });
-    runPuppeteer();
-  }
+ipcMain.on('settings:dest', () => {
+  const dest = config.downloadFolder;
+  config.mainWindow.webContents.send('settings:dest', { dest });
 });
 
+ipcMain.on('task:start', (e, { dest, urls }) => {
+  config.isAborted = false;
+  config.userUrls = urls;
+  config.downloadFolder = dest;
+  runPuppeteer();
+});
 
+ipcMain.on('task:abort', () => {
+  config.isAborted = true;
+  process.kill(config.browserPID);
+});
 
+ipcMain.on('dialog:directory', async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  });
 
+  if (!canceled) {
+    const dest = filePaths[0];
+    config.downloadFolder = dest;
+    config.mainWindow.webContents.send('task:dest', { dest });
+  }
+});
 
 

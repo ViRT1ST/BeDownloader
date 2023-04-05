@@ -11,23 +11,21 @@ const {
 } = require('./utils');
 
 
-async function disableImagesLoading() {
+const reqImages = [];
+
+async function interceptImageRequests() {
   const { page } = config;
 
   await page.setRequestInterception(true);
 
   page.on('request', (req) => {
-    return req.resourceType() === 'image' ? req.abort() : req.continue();
+    if (req.resourceType() === 'image') {
+      reqImages.push(req.url());
+      req.abort();
+    } else {
+      req.continue();
+    }
   });
-}
-
-async function enableImagesLoading() {
-  const { page } = config;
-  await page.setRequestInterception(false);
-}
-
-function getIdByUrl(url) {
-  return url.split('/')[4];
 }
 
 async function moodboardScroller() {
@@ -65,6 +63,10 @@ async function moodboardScroller() {
 
 function sendToRenderer(dest, data) {
   config.mainWindow.webContents.send(dest, data);
+}
+
+function getIdByUrl(url) {
+  return url.split('/')[4];
 }
 
 async function getMoodboardLinks(url) {
@@ -106,18 +108,18 @@ async function generateProjectsList() {
   console.log(config.projects);
 }
 
-
 async function parseProjectData(url) {
   const { inProjectTimeout, page } = config;
   const id = getIdByUrl(url);
 
+  reqImages.length = 0;
   sendToRenderer('project:loading', { id });
 
   await page.goto(url);
   await page.waitForTimeout(inProjectTimeout);
   await page.waitForSelector('.project-content-wrap');
 
-  return page.evaluate(() => {
+  return page.evaluate(async (id) => {
     function getMetaProperty(propertyName) {
       return document.head.querySelector(`meta[property="${propertyName}"]`)
         .getAttribute('content');
@@ -126,14 +128,29 @@ async function parseProjectData(url) {
     const title = getMetaProperty('og:title');
     const owners = getMetaProperty('og:owners');
     const url = getMetaProperty('og:url');
-    const id = url.split('/')[4];
 
     const imgList = Array.from(document.querySelectorAll('img'));
-    const srcList = imgList.map((item) => item.getAttribute('src'));
-    const imgUrls = srcList.filter((item) => item.includes('project_modules'));
+    const imgUrls = imgList.map((item) => item.getAttribute('src'));
 
     return { title, owners, url, id, imgUrls };
-  });
+  }, id);
+}
+
+function checkImageUrl(url) {
+  const bannedList = [
+    'static.kuula.io',
+    'files.kuula.io/users/',
+    'files.kuula.io/profiles/'
+  ];
+
+  const jpegOrPng = /\.jpe?g|png$/i.test(url);
+  const notBanned = !bannedList.some((item) => url.includes(item));
+  const notBase64 = !/base64/i.test(url);
+  const projectModule = /\/project_modules\//i.test(url);
+  const externalImage = !/behance\.net/i.test(url);
+
+  const goodSource = (projectModule || externalImage);
+  return jpegOrPng && notBanned && notBase64 && goodSource;
 }
 
 function correctProjectData(data) {
@@ -149,14 +166,16 @@ function correctProjectData(data) {
     'project_modules/fs/'
   ];
 
-  const images = imgUrls.map((url) => {
+  const filteredUrls = imgUrls.concat(reqImages).filter(checkImageUrl);
+
+  const goodUrls = filteredUrls.map((url) => {
     for (const replacement of replacements) {
       url = url.replace(replacement, 'project_modules/source/');
     }
     return url;
   });
 
-  const correctedData = { ...data, images };
+  const correctedData = { ...data, images: [...new Set(goodUrls)] };
   delete correctedData.imgUrls;
 
   return correctedData;
@@ -171,6 +190,8 @@ async function getProjectData(url) {
 function generateFilePath(projectData, url, index) {
   const { owners: o, title: t } = projectData;
 
+  url = url.includes('?') ? url.split('?')[0] : url;
+
   const owner = convertToLatinizedKebab(o.split(', ')[0]);
   const title = convertToLatinizedKebab(t);
   const prefix = 'behance-';
@@ -179,7 +200,7 @@ function generateFilePath(projectData, url, index) {
   const template = `${prefix}-${owner}-${title}-${number}`;
   const filename = removeMultipleDashes(`${template}.${extension}`);
 
-  return `${config.outputDir}/${filename}`;
+  return `${config.downloadFolder}/${filename}`;
 }
 
 function createImageData(projectData, imageUrl) {
@@ -194,9 +215,9 @@ function createImageData(projectData, imageUrl) {
 }
 
 async function downloadProjects() {
-  const { betweenDownloadsDelay, page, outputDir, projects } = config;
+  const { downloadFolder, betweenImagesDelay, page, projects } = config;
 
-  createDirIfNotExists(outputDir);
+  createDirIfNotExists(downloadFolder);
 
   let projectsCompleted = 0;
 
@@ -207,6 +228,8 @@ async function downloadProjects() {
 
     const projectData = await getProjectData(project);
     const { images, id } = projectData;
+
+    console.log(images);
 
     for (let i = 0; i < images.length; i++) {
       if (config.isAborted) {
@@ -223,7 +246,7 @@ async function downloadProjects() {
       const imageData = createImageData(projectData, image);
       saveObjectIntoImageExif(imageData, path);
 
-      await page.waitForTimeout(betweenDownloadsDelay);
+      await page.waitForTimeout(betweenImagesDelay);
     }
 
     if (!config.isAborted) {
@@ -240,7 +263,6 @@ async function downloadProjects() {
   }
 }
 
-module.exports.disableImagesLoading = disableImagesLoading;
-module.exports.enableImagesLoading = enableImagesLoading;
+module.exports.interceptImageRequests = interceptImageRequests;
 module.exports.generateProjectsList = generateProjectsList;
 module.exports.downloadProjects = downloadProjects;

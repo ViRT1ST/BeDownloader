@@ -2,6 +2,6 @@
 
 Behance Bulk Image Downloader
 
-![screenshot](readme-images/screenshot.png)
+![screenshot](screenshots/main.png)
 
 [work in progress]
