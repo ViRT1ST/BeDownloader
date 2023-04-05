@@ -81,10 +81,14 @@ button:hover {
 	background-color: #2bbbad;
 }
 
+button.working {
+	background-color: #E04E4A;
+}
+
 button.disabled {
 	pointer-events: none;
-	background-color: #DFDFDF !important;
-	color: #9F9F9F !important;
+	background-color: #DFDFDF;
+	color: #9F9F9F;
 	cursor: default;
 }
 
@@ -92,7 +96,7 @@ section {
 	margin-bottom: 20px;
 }
 
-#form {
+.app-container {
 	display: flex;
 	flex-direction: column;
 	margin: 0 auto;
@@ -135,7 +139,7 @@ section {
 	font-weight: 500;
 }
 
-#submit-btn {
+#start-btn {
 	margin-top: 10px;
 }
 

@@ -3,31 +3,41 @@ const { ipcRenderer } = require('electron');
 const path = require('path');
 const os = require('os');
 
-const form = document.getElementById('form');
 const urlsInput = document.getElementById('urls-input');
 const destInput = document.getElementById('destination-input');
 const infoStatus = document.getElementById('information-status');
 const infoCompleted = document.getElementById('information-completed');
-const button = document.getElementById('submit-btn');
+const button = document.getElementById('start-btn');
 
 destInput.value = path.join(os.homedir(), 'behance-downloads');
 
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
+function updateUiAsRinning() {
+  button.innerHTML = 'Cancel';
+  button.classList.add('working');
+}
 
-  const dest = destInput.value.replace(/\\+/g, '/');
-  const urls = urlsInput.value.split('\n').filter((item) => {
-    return /.net\/gallery\/|.net\/collection\//g.test(item);
-  });
+function updateUiAsReady() {
+  button.innerHTML = 'Download';
+  button.classList.remove('working');
+}
 
-  ipcRenderer.send('form:start', { dest, urls });
-});
-
-ipcRenderer.on('puppeteer:start', (e, { start }) => {
-  if (start) {
-    button.classList.add('disabled');
+button.addEventListener('click', (e) => {
+  if (e.target.classList.contains('working')) {
+    infoStatus.innerHTML = '[failure] interrupted by user';
+    ipcRenderer.send('task:abort');
+    updateUiAsReady();
   } else {
-    infoStatus.innerHTML = '[error] list is empty';
+    const dest = destInput.value.replace(/\\+/g, '/');
+    const regex = /.net\/gallery\/|.net\/collection\//g;
+    const urls = urlsInput.value.split('\n').filter((item) => regex.test(item));
+
+    if (urls.length === 0) {
+      infoStatus.innerHTML = '[error] list is empty';
+    } else {
+      infoStatus.classList = 'creating task ...';
+      ipcRenderer.send('task:start', { dest, urls });
+      updateUiAsRinning();
+    }
   }
 });
 
@@ -51,8 +61,9 @@ ipcRenderer.on('project:download', (e, { id, current, total }) => {
   infoStatus.innerHTML = `downloading project ${id}, image: ${current}/${total}`;
 });
 
-ipcRenderer.on('form:done', () => {
-  infoStatus.innerHTML = 'all images downloaded successfully.';
-  button.classList.remove('disabled');
+ipcRenderer.on('task:done', () => {
+  infoStatus.innerHTML = 'all images were downloaded successfully!';
+  updateUiAsReady();
 });
+
 

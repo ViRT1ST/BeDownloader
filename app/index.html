@@ -8,12 +8,13 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <form id="form">
+  <div class="app-container">
 
     <div class="settings-container">
       <section class="urls">
         <p class="label"><strong>URL List:</strong></p>
-        <textarea id="urls-input" placeholder="Drop here link(s) to download.&#13;Moodboards and projects are supported.&#13;&#13;E.g.&#13;https://www.behance.net/collection/123456789/Best-Archviz&#13;https://www.behance.net/gallery/123456789/Modern-Interior"></textarea>
+        <textarea id="urls-input" placeholder="Drop here link(s) to download.&#13;Moodboards and projects are supported.&#13;&#13;E.g.&#13;https://www.behance.net/collection/123456789/Moodboard&#13;https://www.behance.net/gallery/123456789/Project"></textarea>
+        <!-- <textarea id="urls-input" placeholder="Drop here link(s) to download.&#13;Moodboards and projects are supported.&#13;&#13;E.g.&#13;https://www.behance.net/collection/123456789/Best-Archviz&#13;https://www.behance.net/gallery/123456789/Modern-Interior"></textarea> -->
       </section>
 
       <section class="destination">
@@ -36,11 +37,11 @@
       </section>
     </div>
 
-    <div class="submit-container">
-      <button class="btn" id="submit-btn" type="submit">Download</button>
+    <div class="start-container">
+      <button class="btn" id="start-btn">Download</button>
     </div>
   
-  </form>
+  </div>
 
   <script src="js/renderer.js"></script>
 </body>

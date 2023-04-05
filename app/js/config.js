@@ -1,12 +1,14 @@
-const isDevMode = false;
+const isDevMode = true;
 
 const config = {
-  isMac: process.platform === 'darwin',
   inMoodboardTimeout: 10000,
   inProjectTimeout: 5000,
   betweenProjectsDelay: 1000,
   betweenDownloadsDelay: 500,
+  isMac: process.platform === 'darwin',
+  isAborted: false,
   mainWindow: null,
+  browserPID: null,
   page: null,
   outputDir: null,
   userUrls: [],

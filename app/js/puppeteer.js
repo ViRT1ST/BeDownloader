@@ -13,6 +13,7 @@ const {
 
 async function disableImagesLoading() {
   const { page } = config;
+
   await page.setRequestInterception(true);
 
   page.on('request', (req) => {
@@ -200,19 +201,21 @@ async function downloadProjects() {
   let projectsCompleted = 0;
 
   for (const project of projects) {
-    const projectData = await getProjectData(project);
+    if (config.isAborted) {
+      break;
+    }
 
-    const { images } = projectData;
+    const projectData = await getProjectData(project);
+    const { images, id } = projectData;
 
     for (let i = 0; i < images.length; i++) {
-      sendToRenderer('project:download', {
-        id: projectData.id,
-        current: i + 1,
-        total: images.length
-      });
+      if (config.isAborted) {
+        break;
+      }
+
+      sendToRenderer('project:download', { id, current: i + 1, total: images.length });
 
       const image = images[i];
-
       const path = generateFilePath(projectData, image, i + 1);
       await downloadFile(image, path);
       console.log(path);
@@ -223,14 +226,18 @@ async function downloadProjects() {
       await page.waitForTimeout(betweenDownloadsDelay);
     }
 
-    projectsCompleted += 1;
-    sendToRenderer('completed:update', {
-      done: projectsCompleted,
-      total: projects.length
-    });
+    if (!config.isAborted) {
+      projectsCompleted += 1;
+      sendToRenderer('completed:update', {
+        done: projectsCompleted,
+        total: projects.length
+      });
+    }
   }
 
-  sendToRenderer('form:done', null);
+  if (!config.isAborted) {
+    sendToRenderer('task:done', null);
+  }
 }
 
 module.exports.disableImagesLoading = disableImagesLoading;
