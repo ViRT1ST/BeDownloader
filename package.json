@@ -3,7 +3,7 @@
   "version": "0.0.5",
   "description": "",
   "main": "main.js",
-  "repo": "https://github.com/ViRT1ST/behance-image-downloader",
+  "repo": "https://github.com/ViRT1ST/BeDownloader.git",
   "scripts": {
     "start": "electron .",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=app/img/icons/mac/icon.icns --prune=true --out=release-builds",
