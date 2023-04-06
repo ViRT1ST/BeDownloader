@@ -5,14 +5,13 @@ Written with Electron, Puppeteer and other JS libraries.
 
 ## Features
 - Downloads list of urls (projects and moodboards supported).
-- Downloads full-size original images if it avialiable.
-- Writes information about project into image metadata (only for JPEG files).
+- Downloads full-size original images if it available.
+- Writes information about project into metadata (only for JPEG files).
 - Portable app, don't need installation.
 
 ## Usage
 - Download portable app and run it.  
 - Or download repository, install all dependencies, then run 'npm start' (for JS developers).
-
 
 ## Screenshot
 ![screenshot](screenshots/main.png)
