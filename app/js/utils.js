@@ -38,7 +38,7 @@ async function downloadFile(url, filepath) {
 
 function createDirIfNotExists(dir) {
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
+    fs.mkdirSync(dir, { recursive: true });
   }
 }
 

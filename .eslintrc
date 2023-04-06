@@ -36,7 +36,7 @@
     "jsx-a11y/no-noninteractive-tabindex": "off",
     "no-restricted-syntax": "off",
     "no-await-in-loop": "off",
-    "no-plusplus": "off"
+    "no-plusplus": "off",
+    "import/no-extraneous-dependencies": "off"
   }
-  
 }

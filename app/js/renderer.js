@@ -36,6 +36,7 @@ button.addEventListener('click', (e) => {
     if (urls.length === 0) {
       infoStatus.innerHTML = '[error] list is empty';
     } else {
+      infoStatus.innerHTML = 'launching headless browser ...';
       ipcRenderer.send('task:start', { dest, urls });
       updateUiAsRunning();
     }
