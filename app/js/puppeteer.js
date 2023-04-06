@@ -10,7 +10,6 @@ const {
   saveObjectIntoImageExif
 } = require('./utils');
 
-
 const reqImages = [];
 
 async function interceptImageRequests() {

@@ -1,8 +1,8 @@
 # MY DATA
 .backups/
 release-builds/
+app/js/testing.js
 project.txt
-test.js
 *.jpg
 
 
