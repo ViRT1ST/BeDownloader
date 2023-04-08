@@ -3,6 +3,8 @@ const fetch = require('node-fetch');
 const piexif = require('piexifjs');
 const { transliterate } = require('transliteration');
 
+const breakLine = '\r\n';
+
 function addZeroForNumberLessTen(number) {
   return number.toLocaleString('en-US', { minimumIntegerDigits: 2 });
 }
@@ -66,6 +68,24 @@ function saveObjectIntoImageExif(obj, filepath) {
   }
 }
 
+function readFileToArray(filename) {
+  try {
+    const fileContent = fs.readFileSync(filename, 'utf-8');
+    const linesArray = fileContent.trim().split(breakLine);
+    return linesArray;
+  } catch (error) {
+    return [];
+  }
+}
+
+function writeArrayToFile(filename, array) {
+  try {
+    const lines = array.join(breakLine);
+    fs.writeFileSync(filename, lines);
+  } catch (error) { /* ignore */ }
+
+}
+
 module.exports.addZeroForNumberLessTen = addZeroForNumberLessTen;
 module.exports.replaceNonEnglishBySymbol = replaceNonEnglishBySymbol;
 module.exports.removeMultipleDashes = removeMultipleDashes;
@@ -74,3 +94,5 @@ module.exports.convertToLatinizedKebab = convertToLatinizedKebab;
 module.exports.createDirIfNotExists = createDirIfNotExists;
 module.exports.downloadFile = downloadFile;
 module.exports.saveObjectIntoImageExif = saveObjectIntoImageExif;
+module.exports.readFileToArray = readFileToArray;
+module.exports.writeArrayToFile = writeArrayToFile;

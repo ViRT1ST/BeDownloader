@@ -30,12 +30,15 @@ button.addEventListener('click', (e) => {
     updateUiAsReady();
   } else {
     const dest = destInput.value.replace(/\\+/g, '/');
-    const regex = /.net\/gallery\/|.net\/collection\//g;
+    const regex = /.net\/gallery\/|.net\/collection\//;
     const urls = urlsInput.value.split('\n').filter((item) => regex.test(item));
 
     if (urls.length === 0) {
       infoStatus.innerHTML = '[error] list is empty';
     } else {
+      infoCompleted.innerHTML = `
+        total projects: ... | completed: ... | skipped by history: ...
+      `;
       infoStatus.innerHTML = 'launching headless browser ...';
       ipcRenderer.send('task:start', { dest, urls });
       updateUiAsRunning();
@@ -65,8 +68,10 @@ ipcRenderer.on('moodboard:scrolling', (e, { id }) => {
   infoStatus.innerHTML = `scrolling moodboard ${id} to get all projects ...`;
 });
 
-ipcRenderer.on('completed:update', (e, { done, total }) => {
-  infoCompleted.innerHTML = `${done}/${total}`;
+ipcRenderer.on('completed:update', (e, { done, total, skip }) => {
+  infoCompleted.innerHTML = `
+    total projects: ${total} | completed: ${done} | skipped by history: ${skip}
+  `;
 });
 
 ipcRenderer.on('project:loading', (e, { id }) => {
@@ -79,5 +84,10 @@ ipcRenderer.on('project:download', (e, { id, current, total }) => {
 
 ipcRenderer.on('task:done', () => {
   infoStatus.innerHTML = 'all images were downloaded successfully!';
+  updateUiAsReady();
+});
+
+ipcRenderer.on('task:skipped', () => {
+  infoStatus.innerHTML = '[error] no projects to download (all skipped by download history)';
   updateUiAsReady();
 });

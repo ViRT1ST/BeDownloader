@@ -7,11 +7,16 @@ const { createDirIfNotExists } = require('./utils');
 
 const isDevMode = false;
 
+const appFolderName = '.bedownloader';
+
 const config = {
   isMac: process.platform === 'darwin',
-  settingsFolder: path.join(os.homedir(), '.bedownloader'),
-  settingsFile: path.join(os.homedir(), '.bedownloader', 'config.ini'),
-  downloadFolder: path.join(os.homedir(), '.bedownloader', 'downloads'),
+  settingsFolder: path.join(os.homedir(), appFolderName),
+  settingsFile: path.join(os.homedir(), appFolderName, 'config.ini'),
+  downloadFolder: path.join(os.homedir(), appFolderName, 'downloads'),
+  historyFile: path.join(os.homedir(), appFolderName, 'history.txt'),
+  historyList: [],
+  skipProjectsByHistory: true,
   inMoodboardTimeout: 10000,
   inProjectTimeout: 5000,
   betweenProjectsDelay: 1000,
@@ -29,6 +34,7 @@ function loadConfig() {
     const { main } = ini.parse(fs.readFileSync(config.settingsFile, 'utf-8'));
     if (main) {
       config.downloadFolder = main.downloadFolder;
+      config.skipProjectsByHistory = main.skipProjectsByHistory;
       config.inMoodboardTimeout = main.inMoodboardTimeout;
       config.inProjectTimeout = main.inProjectTimeout;
       config.betweenProjectsDelay = main.betweenProjectsDelay;
@@ -43,23 +49,24 @@ function saveConfig() {
   createDirIfNotExists(config.settingsFolder);
   const configToSave = {
     downloadFolder: config.downloadFolder,
+    skipProjectsByHistory: config.skipProjectsByHistory,
     inMoodboardTimeout: config.inMoodboardTimeout,
     inProjectTimeout: config.inProjectTimeout,
     betweenProjectsDelay: config.betweenProjectsDelay,
-    betweenImagesDelay: config.betweenImagesDelay
+    betweenImagesDelay: config.betweenImagesDelay,
   };
   fs.writeFileSync(config.settingsFile, ini.stringify(configToSave, { section: 'main' }));
 }
 
 function getPuppeteerSettings() {
-  const executablePath = './.cache/puppeteer/chrome/win64-1108766/chrome-win/chrome.exe';
+  const chrome = './.cache/puppeteer/chrome/win64-1108766/chrome-win/chrome.exe';
 
   if (isDevMode) {
     return {
       args: [],
       defaultViewport: null,
       headless: false,
-      executablePath,
+      executablePath: chrome,
     };
   }
 
@@ -67,13 +74,13 @@ function getPuppeteerSettings() {
     args: ['--start-maximized'],
     defaultViewport: { width: 1920, height: 1080 },
     headless: true,
-    executablePath,
+    executablePath: chrome,
   };
 }
 
 function getElectronSettings() {
   return {
-    title: 'BeDownloader',
+    title: 'BeDownloader 1.0.5',
     width: 800,
     height: 600,
     icon: './app/img/icons/Icon_512x512.png',

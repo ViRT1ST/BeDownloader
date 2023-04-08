@@ -2,12 +2,7 @@ const puppeteer = require('puppeteer');
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 
 const { config, getPuppeteerSettings, getElectronSettings, saveConfig } = require('./app/js/config');
-
-const {
-  interceptImageRequests,
-  generateProjectsList,
-  downloadProjects,
-} = require('./app/js/puppeteer');
+const { interceptImageRequests, generateProjectsList, downloadProjects } = require('./app/js/puppeteer');
 
 /* ========================================================= */
 /* Puppeteer                                                 */
@@ -21,12 +16,17 @@ async function runPuppeteer() {
   config.browserPID = browser.process().pid;
   config.page = page;
 
-  try {
-    await interceptImageRequests();
-    await generateProjectsList();
-    await downloadProjects();
-    browser.close();
-  } catch (err) { /* ignore */ }
+  await interceptImageRequests();
+  await generateProjectsList();
+  await downloadProjects();
+  browser.close();
+
+  // try {
+  //   await interceptImageRequests();
+  //   await generateProjectsList();
+  //   await downloadProjects();
+  //   browser.close();
+  // } catch (err) { /* ignore */ }
 }
 
 /* ========================================================= */
@@ -50,7 +50,6 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', () => {
-  saveConfig();
   if (!config.isMac) {
     app.quit();
   }
@@ -71,6 +70,7 @@ ipcMain.on('task:start', (e, { dest, urls }) => {
   config.isAborted = false;
   config.userUrls = urls;
   config.downloadFolder = dest;
+  saveConfig();
   runPuppeteer();
 });
 

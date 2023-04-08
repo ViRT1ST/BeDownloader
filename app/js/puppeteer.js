@@ -7,10 +7,14 @@ const {
   convertToLatinizedKebab,
   createDirIfNotExists,
   downloadFile,
-  saveObjectIntoImageExif
+  saveObjectIntoImageExif,
+  readFileToArray,
+  writeArrayToFile
 } = require('./utils');
 
+
 const reqImages = [];
+let skippedByHistory = 0;
 
 async function interceptImageRequests() {
   const { page } = config;
@@ -88,9 +92,12 @@ async function getMoodboardLinks(url) {
 }
 
 async function generateProjectsList() {
-  const { userUrls } = config;
+  const { userUrls, historyFile, skipProjectsByHistory } = config;
+
+  config.historyList = readFileToArray(historyFile);
 
   let projects = [];
+  skippedByHistory = 0;
 
   for (const url of userUrls) {
     if (url.includes('behance.net/collection/')) {
@@ -99,12 +106,21 @@ async function generateProjectsList() {
     } else {
       projects.push(url);
     }
-
-    sendToRenderer('completed:update', { done: 0, total: projects.length });
+    sendToRenderer('completed:update', {
+      done: 0, total: projects.length, skip: 0
+    });
   }
 
-  config.projects = projects;
-  console.log(config.projects);
+  if (skipProjectsByHistory) {
+    config.projects = projects.filter((item) => !config.historyList.includes(item));
+  } else {
+    config.projects = projects;
+  }
+
+  skippedByHistory = projects.length - config.projects.length;
+  sendToRenderer('completed:update', {
+    done: 0, total: projects.length, skip: skippedByHistory
+  });
 }
 
 async function parseProjectData(url) {
@@ -215,7 +231,7 @@ async function downloadProjects() {
     }
 
     const projectData = await getProjectData(project);
-    const { images, id } = projectData;
+    const { id, url, images } = projectData;
 
     console.log(images);
 
@@ -241,12 +257,23 @@ async function downloadProjects() {
       projectsCompleted += 1;
       sendToRenderer('completed:update', {
         done: projectsCompleted,
-        total: projects.length
+        total: projects.length + skippedByHistory,
+        skip: skippedByHistory
       });
     }
+
+    if (!config.historyList.includes(url)) {
+      config.historyList.push(url);
+      writeArrayToFile(config.historyFile, config.historyList);
+    }
+
   }
 
-  if (!config.isAborted) {
+  if (projects.length === 0) {
+    sendToRenderer('task:skipped', null);
+  }
+
+  if (projects.length !== 0 && !config.isAborted) {
     sendToRenderer('task:done', null);
   }
 }
