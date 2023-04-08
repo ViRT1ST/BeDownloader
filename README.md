@@ -23,6 +23,7 @@ Written with Electron, Puppeteer and other JS libraries.
 ![screenshot](screenshots/main.png)
 
 ## Todo
+- Fix bugs.
 - Advanced settings in UI.
 - Support for download all projects from profiles.
 - Support for download embeded 360-degree panoramas from kuula.co.
