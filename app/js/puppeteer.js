@@ -1,4 +1,8 @@
-const { config } = require('./config');
+const fs = require('fs');
+const path = require('path');
+
+const puppeteer = require('puppeteer');
+const { config, getPuppeteerSettings } = require('./config');
 
 const {
   addZeroForNumberLessTen,
@@ -12,18 +16,36 @@ const {
   writeArrayToFile
 } = require('./utils');
 
+let browser;
+let browserPID;
+let page;
 
-const reqImages = [];
-let skippedByHistory = 0;
+let projects;
+let projectsTotal;
+let projectsPassedByHistory;
+let projectsToDownload;
+let projectsCompleted;
+
+let imagesFromRequests;
+let historyList;
+
+let electronWindow;
+
+function setElectronWindow(mainWindow) {
+  electronWindow = mainWindow;
+}
 
 async function interceptImageRequests() {
-  const { page } = config;
-
   await page.setRequestInterception(true);
 
   page.on('request', (req) => {
-    if (req.resourceType() === 'image') {
-      reqImages.push(req.url());
+    const url = req.url();
+    const resourceType = req.resourceType();
+
+    if (resourceType === 'image') {
+      imagesFromRequests.push(url);
+      req.abort();
+    } else if (req.resourceType === 'media') {
       req.abort();
     } else {
       req.continue();
@@ -31,8 +53,33 @@ async function interceptImageRequests() {
   });
 }
 
+async function initPuppeteer() {
+  const settings = getPuppeteerSettings();
+  browser = await puppeteer.launch(settings);
+  page = await browser.newPage();
+  browserPID = browser.process().pid;
+
+  projects = [];
+  projectsTotal = 0;
+  projectsPassedByHistory = 0;
+  projectsToDownload = 0;
+  projectsCompleted = 0;
+
+  imagesFromRequests = [];
+
+  await interceptImageRequests();
+}
+
+function killPuppeteer() {
+  process.kill(browserPID);
+}
+
+function closePuppeteer() {
+  browser.close();
+}
+
 async function moodboardScroller() {
-  const { inMoodboardTimeout: timeout, page } = config;
+  const { inMoodboardTimeout: timeout } = config;
 
   await page.evaluate(async (timeout) => {
     await new Promise((resolve) => {
@@ -65,7 +112,7 @@ async function moodboardScroller() {
 }
 
 function sendToRenderer(dest, data) {
-  config.mainWindow.webContents.send(dest, data);
+  electronWindow.webContents.send(dest, data);
 }
 
 function getIdByUrl(url) {
@@ -73,66 +120,62 @@ function getIdByUrl(url) {
 }
 
 async function getMoodboardLinks(url) {
-  const { page } = config;
   const id = getIdByUrl(url);
 
   sendToRenderer('moodboard:loading', { id });
-  await page.goto(url);
-  await page.waitForSelector('.Collection-wrapper-LHa');
+  await page.goto(url, { waitUntil: 'load', timeout: 0 });
 
   sendToRenderer('moodboard:scrolling', { id });
   await moodboardScroller(page);
 
   return page.evaluate(() => {
     const selector = '.js-project-cover-title-link';
-    const items = Array.from(document.querySelectorAll(selector));
-    const urls = items.map((item) => item.getAttribute('href'));
+    const elements = Array.from(document.querySelectorAll(selector));
+    const urls = elements.map((item) => item.getAttribute('href'));
     return urls;
   });
 }
 
-async function generateProjectsList() {
-  const { userUrls, historyFile, skipProjectsByHistory } = config;
+async function generateProjectsList(urls) {
+  const { historyFile, skipProjectsByHistory } = config;
 
-  config.historyList = readFileToArray(historyFile);
+  historyList = readFileToArray(historyFile);
 
-  let projects = [];
-  skippedByHistory = 0;
-
-  for (const url of userUrls) {
+  for (const url of urls) {
     if (url.includes('behance.net/collection/')) {
       const moodboardProjects = await getMoodboardLinks(url);
       projects = [...projects, ...moodboardProjects];
     } else {
       projects.push(url);
     }
+
+    projectsTotal = projects.length;
     sendToRenderer('completed:update', {
-      done: 0, total: projects.length, skip: 0
+      done: 0, total: projectsTotal, skip: 0
     });
   }
 
+  projects = projects.map((item) => item.split('?')[0]);
+
   if (skipProjectsByHistory) {
-    config.projects = projects.filter((item) => !config.historyList.includes(item));
-  } else {
-    config.projects = projects;
+    projects = projects.filter((item) => !historyList.includes(item));
   }
 
-  skippedByHistory = projects.length - config.projects.length;
+  projectsToDownload = projects.length;
+  projectsPassedByHistory = projectsTotal - projectsToDownload;
+
   sendToRenderer('completed:update', {
-    done: 0, total: projects.length, skip: skippedByHistory
+    done: 0, total: projectsTotal, skip: projectsPassedByHistory
   });
 }
 
 async function parseProjectData(url) {
-  const { inProjectTimeout, page } = config;
   const id = getIdByUrl(url);
 
-  reqImages.length = 0;
+  imagesFromRequests = [];
   sendToRenderer('project:loading', { id });
 
-  await page.goto(url);
-  await page.waitForTimeout(inProjectTimeout);
-  await page.waitForSelector('.project-content-wrap');
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
 
   return page.evaluate(async (id) => {
     function getMetaProperty(propertyName) {
@@ -140,14 +183,40 @@ async function parseProjectData(url) {
         .getAttribute('content');
     }
 
+    function getImagesFromJson() {
+      let images = [];
+
+      try {
+        const jsonElement = document.getElementById('beconfig-store_state');
+        const jsonObj = JSON.parse(jsonElement.innerHTML);
+        const { modules } = jsonObj.project.project;
+
+        for (let i = 0; i < modules.length; i++) {
+          const { components, src } = modules[i];
+
+          if (typeof components === 'object') {
+            images = [...images, ...components.map((item) => item.src)];
+          }
+
+          if (typeof src === 'string') {
+            images = [...images, src];
+          }
+        }
+      } catch (error) { /* ignore */ }
+
+      return images;
+    }
+
     const title = getMetaProperty('og:title');
     const owners = getMetaProperty('og:owners');
     const url = getMetaProperty('og:url');
 
-    const imgList = Array.from(document.querySelectorAll('img'));
-    const imgUrls = imgList.map((item) => item.getAttribute('src'));
+    const elements = Array.from(document.querySelectorAll('img'));
+    const imagesFromDom = elements.map((item) => item.getAttribute('src'));
+    const imagesFromJson = getImagesFromJson();
+    const images = imagesFromDom.concat(imagesFromJson);
 
-    return { title, owners, url, id, imgUrls };
+    return { title, owners, url, id, images };
   }, id);
 }
 
@@ -169,20 +238,18 @@ function checkImageUrl(url) {
 }
 
 function correctProjectData(data) {
-  const { imgUrls } = data;
+  const { images } = data;
 
-  const filteredUrls = imgUrls.concat(reqImages).filter(checkImageUrl);
+  const allImages = images.concat(imagesFromRequests);
+  const filteredImages = allImages.filter(checkImageUrl);
 
-  const correctedUrls = filteredUrls.map((url) => {
-    return url.includes('/project_modules/')
-      ? url.replace(/([\w.-]+)(\/[\w.-]+)$/, 'source$2')
-      : url;
+  const correctedImages = filteredImages.map((item) => {
+    return item.includes('/project_modules/')
+      ? item.replace(/([\w.-]+)(\/[\w.-]+)$/, 'source$2')
+      : item;
   });
 
-  const correctedData = { ...data, images: [...new Set(correctedUrls)] };
-  delete correctedData.imgUrls;
-
-  return correctedData;
+  return { ...data, images: [...new Set(correctedImages)] };
 }
 
 async function getProjectData(url) {
@@ -218,12 +285,58 @@ function createImageData(projectData, imageUrl) {
   return { site, id, owners, title, url, image };
 }
 
+function saveProjectToHistory(url) {
+  const { historyFile } = config;
+  if (!historyList.includes(url)) {
+    historyList.push(url);
+    writeArrayToFile(historyFile, historyList);
+  }
+}
+
+async function downloadImage(url, projectData, filepath) {
+  const tempFileExt = path.parse(filepath).ext;
+
+  const tempFile = path.join(path.dirname(filepath), `temp-image${tempFileExt}`);
+  await downloadFile(url, tempFile);
+
+  const imageData = createImageData(projectData, url);
+  saveObjectIntoImageExif(imageData, tempFile);
+
+  let pathToSave = filepath;
+
+  if (fs.existsSync(tempFile) && fs.existsSync(filepath)) {
+    const tempFileSize = (fs.statSync(tempFile).size / 1024).toFixed(2);
+    const existFileSize = (fs.statSync(filepath).size / 1024).toFixed(2);
+
+    if (tempFileSize !== existFileSize) {
+
+      const existFilePatternArr = path.parse(filepath).name.split('-').slice(0, -1);
+      const existFilePattern = existFilePatternArr.join('-');
+
+      const existFilesWithPattern = fs
+        .readdirSync(path.dirname(filepath))
+        .filter((item) => item.startsWith((existFilePattern)));
+
+      const lastFile = existFilesWithPattern.pop();
+      const { name, ext } = path.parse(lastFile);
+      const lastDigit = parseInt(name.split('-').pop(), 10);
+      const nextDigit = addZeroForNumberLessTen(lastDigit + 1);
+      const newFilename = `${existFilePattern}-${nextDigit}${ext}`;
+      const newFilepath = path.join(path.dirname(filepath), newFilename);
+
+      pathToSave = newFilepath;
+    }
+  }
+
+  fs.renameSync(tempFile, pathToSave);
+  console.log(pathToSave);
+}
+
+
 async function downloadProjects() {
-  const { downloadFolder, betweenImagesDelay, page, projects } = config;
+  const { downloadFolder, betweenImagesDelay } = config;
 
   createDirIfNotExists(downloadFolder);
-
-  let projectsCompleted = 0;
 
   for (const project of projects) {
     if (config.isAborted) {
@@ -231,53 +344,50 @@ async function downloadProjects() {
     }
 
     const projectData = await getProjectData(project);
-    const { id, url, images } = projectData;
+    const { id, url: projectUrl, images: imageUrls } = projectData;
+    console.log(imageUrls);
 
-    console.log(images);
-
-    for (let i = 0; i < images.length; i++) {
+    for (let i = 0; i < imageUrls.length; i++) {
       if (config.isAborted) {
         break;
       }
 
-      sendToRenderer('project:download', { id, current: i + 1, total: images.length });
+      sendToRenderer('project:download', {
+        id,
+        current: i + 1,
+        total: imageUrls.length });
 
-      const image = images[i];
-      const path = generateFilePath(projectData, image, i + 1);
-      await downloadFile(image, path);
-      console.log(path);
-
-      const imageData = createImageData(projectData, image);
-      saveObjectIntoImageExif(imageData, path);
+      const url = imageUrls[i];
+      const path = generateFilePath(projectData, url, i + 1);
+      await downloadImage(url, projectData, path);
 
       await page.waitForTimeout(betweenImagesDelay);
     }
 
     if (!config.isAborted) {
+      saveProjectToHistory(projectUrl);
       projectsCompleted += 1;
       sendToRenderer('completed:update', {
+        total: projectsTotal,
         done: projectsCompleted,
-        total: projects.length + skippedByHistory,
-        skip: skippedByHistory
+        skip: projectsPassedByHistory
       });
     }
-
-    if (!config.historyList.includes(url)) {
-      config.historyList.push(url);
-      writeArrayToFile(config.historyFile, config.historyList);
-    }
-
   }
 
-  if (projects.length === 0) {
+  if (projectsToDownload === 0) {
     sendToRenderer('task:skipped', null);
   }
 
-  if (projects.length !== 0 && !config.isAborted) {
+  if (projectsToDownload !== 0 && !config.isAborted) {
     sendToRenderer('task:done', null);
   }
 }
 
+module.exports.setElectronWindow = setElectronWindow;
 module.exports.interceptImageRequests = interceptImageRequests;
+module.exports.initPuppeteer = initPuppeteer;
+module.exports.killPuppeteer = killPuppeteer;
+module.exports.closePuppeteer = closePuppeteer;
 module.exports.generateProjectsList = generateProjectsList;
 module.exports.downloadProjects = downloadProjects;

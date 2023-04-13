@@ -23,13 +23,19 @@ function updateUiAsReady() {
   button.classList.remove('working');
 }
 
+function getCorrectedPath() {
+  return navigator.userAgentData.platform !== 'Windows'
+    ? destInput.value.replace(/\\+/g, '/')
+    : destInput.value;
+}
+
 button.addEventListener('click', (e) => {
   if (e.target.classList.contains('working')) {
     infoStatus.innerHTML = '[failure] interrupted by user';
     ipcRenderer.send('task:abort');
     updateUiAsReady();
   } else {
-    const dest = destInput.value.replace(/\\+/g, '/');
+    const dest = getCorrectedPath();
     const regex = /.net\/gallery\/|.net\/collection\//;
     const urls = urlsInput.value.split('\n').filter((item) => regex.test(item));
 

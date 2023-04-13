@@ -6,7 +6,7 @@ Written with Electron, Puppeteer and other JS libraries.
 ## Features
 - Downloads list of urls (projects and moodboards supported).
 - Downloads full-size original images if it available.
-- Writes information about project into metadata (only for JPEG files).
+- Writes information about project into downloades images (JPEG metadata).
 - Keeps history for all downloaded projects.
 - Has the ability to skip downloading a project if its URL is found in the history.
 - Portable app, don't need installation.

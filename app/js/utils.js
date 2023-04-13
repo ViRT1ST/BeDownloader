@@ -54,17 +54,19 @@ function getExifFromJpegFile(filepath) {
 
 function saveObjectIntoImageExif(obj, filepath) {
   if (/\.jpe?g$/i.test(filepath)) {
-    const exifData = getExifFromJpegFile(filepath);
-    const imageData = getBase64DataFromJpegFile(filepath);
-    const jsonData = JSON.stringify(obj);
+    try {
+      const exifData = getExifFromJpegFile(filepath);
+      const imageData = getBase64DataFromJpegFile(filepath);
+      const jsonData = JSON.stringify(obj);
 
-    exifData['0th'][piexif.ImageIFD.ImageDescription] = jsonData;
+      exifData['0th'][piexif.ImageIFD.ImageDescription] = jsonData;
 
-    const newExifBinary = piexif.dump(exifData);
-    const newPhotoData = piexif.insert(newExifBinary, imageData);
+      const newExifBinary = piexif.dump(exifData);
+      const newPhotoData = piexif.insert(newExifBinary, imageData);
 
-    const fileBuffer = Buffer.from(newPhotoData, 'binary');
-    fs.writeFileSync(filepath, fileBuffer);
+      const fileBuffer = Buffer.from(newPhotoData, 'binary');
+      fs.writeFileSync(filepath, fileBuffer);
+    } catch (error) { /* ignore */ }
   }
 }
 
@@ -78,12 +80,11 @@ function readFileToArray(filename) {
   }
 }
 
-function writeArrayToFile(filename, array) {
+function writeArrayToFile(path, array) {
   try {
     const lines = array.join(breakLine);
-    fs.writeFileSync(filename, lines);
+    fs.writeFileSync(path, lines);
   } catch (error) { /* ignore */ }
-
 }
 
 module.exports.addZeroForNumberLessTen = addZeroForNumberLessTen;

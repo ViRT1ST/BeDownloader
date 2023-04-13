@@ -15,18 +15,11 @@ const config = {
   settingsFile: path.join(os.homedir(), appFolderName, 'config.ini'),
   downloadFolder: path.join(os.homedir(), appFolderName, 'downloads'),
   historyFile: path.join(os.homedir(), appFolderName, 'history.txt'),
-  historyList: [],
   skipProjectsByHistory: true,
   inMoodboardTimeout: 10000,
-  inProjectTimeout: 5000,
-  betweenProjectsDelay: 1000,
   betweenImagesDelay: 500,
-  mainWindow: null,
-  browserPID: null,
-  page: null,
-  userUrls: [],
-  projects: [],
   isAborted: false,
+  mainWindow: null,
 };
 
 function loadConfig() {
@@ -36,8 +29,6 @@ function loadConfig() {
       config.downloadFolder = main.downloadFolder;
       config.skipProjectsByHistory = main.skipProjectsByHistory;
       config.inMoodboardTimeout = main.inMoodboardTimeout;
-      config.inProjectTimeout = main.inProjectTimeout;
-      config.betweenProjectsDelay = main.betweenProjectsDelay;
       config.betweenImagesDelay = main.betweenImagesDelay;
     }
   } catch (err) { /* ignore */ }
@@ -51,8 +42,6 @@ function saveConfig() {
     downloadFolder: config.downloadFolder,
     skipProjectsByHistory: config.skipProjectsByHistory,
     inMoodboardTimeout: config.inMoodboardTimeout,
-    inProjectTimeout: config.inProjectTimeout,
-    betweenProjectsDelay: config.betweenProjectsDelay,
     betweenImagesDelay: config.betweenImagesDelay,
   };
   fs.writeFileSync(config.settingsFile, ini.stringify(configToSave, { section: 'main' }));
@@ -80,7 +69,7 @@ function getPuppeteerSettings() {
 
 function getElectronSettings() {
   return {
-    title: 'BeDownloader 1.0.5',
+    title: 'BeDownloader 1.0.6',
     width: 800,
     height: 600,
     icon: './app/img/icons/Icon_512x512.png',
