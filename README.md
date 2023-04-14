@@ -21,7 +21,6 @@ Written with Electron, Puppeteer and other JS libraries.
 
 ## Screenshot
 ![screenshot](screenshots/launched.png)
-![screenshot](screenshots/completed.png)
 
 ## Todo
 - Advanced settings in UI.
