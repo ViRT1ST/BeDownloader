@@ -80,11 +80,12 @@ function readFileToArray(filename) {
   }
 }
 
-function writeArrayToFile(path, array) {
+function writeArrayToFile(filename, array) {
   try {
     const lines = array.join(breakLine);
-    fs.writeFileSync(path, lines);
+    fs.writeFileSync(filename, lines);
   } catch (error) { /* ignore */ }
+
 }
 
 module.exports.addZeroForNumberLessTen = addZeroForNumberLessTen;

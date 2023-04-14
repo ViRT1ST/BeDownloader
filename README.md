@@ -20,10 +20,10 @@ Written with Electron, Puppeteer and other JS libraries.
 - Skipping projects by download history can be disabled in config.ini
 
 ## Screenshot
-![screenshot](screenshots/main.png)
+![screenshot](screenshots/launched.png)
+![screenshot](screenshots/completed.png)
 
 ## Todo
-- Fix bugs.
 - Advanced settings in UI.
 - Support for download all projects from profiles.
 - Support for download embeded 360-degree panoramas from kuula.co.

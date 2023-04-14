@@ -1,12 +1,12 @@
 {
   "name": "bedownloader",
   "productName": "BeDownloader",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "main": "main.js",
   "repo": "https://github.com/ViRT1ST/BeDownloader.git",
   "scripts": {
-    "start": "electron . --trace-warnings",
+    "start": "electron .",
     "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=app/img/icons/mac/icon.icns --prune=true --out=release-builds",
     "package-win": "electron-packager . --overwrite --platform=win32 --arch=x64 --icon=app/img/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"BeDownloader\"",
     "package-lnx": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=app/img/icons/Icon_1024x1024.png --prune=false --out=release-builds"

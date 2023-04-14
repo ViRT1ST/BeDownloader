@@ -18,7 +18,7 @@ async function runPuppeteer(urls) {
   await initPuppeteer();
   await generateProjectsList(urls);
   await downloadProjects();
-  closePuppeteer();
+  await closePuppeteer();
 
   // try {
   //   await initPuppeteer();

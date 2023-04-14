@@ -128,7 +128,7 @@ async function getMoodboardLinks(url) {
   sendToRenderer('moodboard:scrolling', { id });
   await moodboardScroller(page);
 
-  return page.evaluate(() => {
+  return page.evaluate(async () => {
     const selector = '.js-project-cover-title-link';
     const elements = Array.from(document.querySelectorAll(selector));
     const urls = elements.map((item) => item.getAttribute('href'));
@@ -140,6 +140,9 @@ async function generateProjectsList(urls) {
   const { historyFile, skipProjectsByHistory } = config;
 
   historyList = readFileToArray(historyFile);
+
+  projects = [];
+  projectsPassedByHistory = 0;
 
   for (const url of urls) {
     if (url.includes('behance.net/collection/')) {
@@ -176,6 +179,7 @@ async function parseProjectData(url) {
   sendToRenderer('project:loading', { id });
 
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
+  await page.waitForTimeout(3000);
 
   return page.evaluate(async (id) => {
     function getMetaProperty(propertyName) {
@@ -227,14 +231,18 @@ function checkImageUrl(url) {
     'files.kuula.io/profiles/'
   ];
 
-  const jpegOrPng = /\.jpe?g|png$/i.test(url);
-  const notBadUrl = !badUrls.some((item) => url.includes(item));
-  const notBase64 = !/base64/i.test(url);
-  const projectModule = /\/project_modules\//i.test(url);
-  const externalImage = !/behance\.net/i.test(url);
+  if (typeof url === 'string') {
+    const jpegOrPng = /\.jpe?g|png$/i.test(url);
+    const notBadUrl = !badUrls.some((item) => url.includes(item));
+    const notBase64 = !/base64/i.test(url);
+    const projectModule = /\/project_modules\//i.test(url);
+    const externalImage = !/behance\.net/i.test(url);
 
-  const goodSource = (projectModule || externalImage);
-  return jpegOrPng && notBadUrl && notBase64 && goodSource;
+    const goodSource = (projectModule || externalImage);
+    return jpegOrPng && notBadUrl && notBase64 && goodSource;
+  }
+
+  return false;
 }
 
 function correctProjectData(data) {
@@ -242,6 +250,7 @@ function correctProjectData(data) {
 
   const allImages = images.concat(imagesFromRequests);
   const filteredImages = allImages.filter(checkImageUrl);
+  console.log(allImages);
 
   const correctedImages = filteredImages.map((item) => {
     return item.includes('/project_modules/')
@@ -325,6 +334,8 @@ async function downloadImage(url, projectData, filepath) {
       const newFilepath = path.join(path.dirname(filepath), newFilename);
 
       pathToSave = newFilepath;
+    } else {
+      fs.unlinkSync(filepath);
     }
   }
 

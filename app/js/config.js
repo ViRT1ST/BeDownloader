@@ -19,7 +19,6 @@ const config = {
   inMoodboardTimeout: 10000,
   betweenImagesDelay: 500,
   isAborted: false,
-  mainWindow: null,
 };
 
 function loadConfig() {
@@ -69,7 +68,7 @@ function getPuppeteerSettings() {
 
 function getElectronSettings() {
   return {
-    title: 'BeDownloader 1.0.6',
+    title: 'BeDownloader 1.0.7',
     width: 800,
     height: 600,
     icon: './app/img/icons/Icon_512x512.png',
