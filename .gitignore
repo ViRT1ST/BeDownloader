@@ -2,6 +2,7 @@
 .backups/
 release-builds/
 app/js/testing.js
+app/js/testing.js
 project.txt
 *.jpg
 
