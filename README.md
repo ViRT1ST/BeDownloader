@@ -1,10 +1,10 @@
 BeDownloader
 ==========================
-Bulk image downloader for Behance URLs (projects, moodboards and profiles).  
+Bulk image downloader for Behance URLs (galleries, moodboards, profiles).  
 Written with Electron, Puppeteer and other JS libraries.
 
 ## Features
-- Downloads list of urls (projects and moodboards supported).
+- Parses given URLs for galleries and downloads all images from them.
 - Downloads full-size original images if it available.
 - Writes information about project into downloades images (JPEG metadata).
 - Keeps history for all downloaded projects.
@@ -12,7 +12,7 @@ Written with Electron, Puppeteer and other JS libraries.
 - Portable app, don't need installation.
 
 ## Usage
-- Download portable app and run it.  
+- Download portable app and run it (only for Windows users currently).  
 - Or download repository, install all dependencies, then run 'npm start' (for JS developers).
 
 ## Notes
@@ -24,6 +24,5 @@ Written with Electron, Puppeteer and other JS libraries.
 
 ## Todo
 - Advanced settings in UI.
-- Support for download all projects from profiles.
 - Support for download embeded 360-degree panoramas from kuula.co.
 - Mac and Linux versions.

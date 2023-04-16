@@ -36,7 +36,7 @@ button.addEventListener('click', (e) => {
     updateUiAsReady();
   } else {
     const dest = getCorrectedPath();
-    const regex = /.net\/gallery\/|.net\/collection\//;
+    const regex = /behance.net\//;
     const urls = urlsInput.value.split('\n').filter((item) => regex.test(item));
 
     if (urls.length === 0) {
@@ -66,12 +66,12 @@ ipcRenderer.on('task:dest', (e, { dest }) => {
   destInput.value = dest;
 });
 
-ipcRenderer.on('moodboard:loading', (e, { id }) => {
-  infoStatus.innerHTML = `loading moodboard ${id} ...`;
+ipcRenderer.on('page:loading', (e, { shortUrl }) => {
+  infoStatus.innerHTML = `loading page ${shortUrl} ...`;
 });
 
-ipcRenderer.on('moodboard:scrolling', (e, { id }) => {
-  infoStatus.innerHTML = `scrolling moodboard ${id} to get all projects ...`;
+ipcRenderer.on('page:scrolling', (e, { shortUrl }) => {
+  infoStatus.innerHTML = `scrolling page ${shortUrl} to get all projects ...`;
 });
 
 ipcRenderer.on('completed:update', (e, { done, total, skip }) => {

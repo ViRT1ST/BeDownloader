@@ -28,6 +28,11 @@ function convertToLatinizedKebab(string) {
   return string.toLowerCase();
 }
 
+const shortenUrl = (url, max) => {
+  url = url.split('/').slice(3).join('/');
+  return url.length <= max ? `[${url}]` : `[${url.slice(0, max)}...]`;
+};
+
 async function downloadFile(url, filepath) {
   const res = await fetch(url);
   const fileStream = fs.createWriteStream(filepath);
@@ -85,7 +90,6 @@ function writeArrayToFile(filename, array) {
     const lines = array.join(breakLine);
     fs.writeFileSync(filename, lines);
   } catch (error) { /* ignore */ }
-
 }
 
 module.exports.addZeroForNumberLessTen = addZeroForNumberLessTen;
@@ -93,6 +97,7 @@ module.exports.replaceNonEnglishBySymbol = replaceNonEnglishBySymbol;
 module.exports.removeMultipleDashes = removeMultipleDashes;
 module.exports.convertToLatinized = convertToLatinized;
 module.exports.convertToLatinizedKebab = convertToLatinizedKebab;
+module.exports.shortenUrl = shortenUrl;
 module.exports.createDirIfNotExists = createDirIfNotExists;
 module.exports.downloadFile = downloadFile;
 module.exports.saveObjectIntoImageExif = saveObjectIntoImageExif;

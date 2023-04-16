@@ -9,6 +9,7 @@ const {
   removeMultipleDashes,
   convertToLatinized,
   convertToLatinizedKebab,
+  shortenUrl,
   createDirIfNotExists,
   downloadFile,
   saveObjectIntoImageExif,
@@ -78,8 +79,8 @@ function closePuppeteer() {
   browser.close();
 }
 
-async function moodboardScroller() {
-  const { inMoodboardTimeout: timeout } = config;
+async function pageScroller() {
+  const { scrollingTimeout: timeout } = config;
 
   await page.evaluate(async (timeout) => {
     await new Promise((resolve) => {
@@ -119,17 +120,17 @@ function getIdByUrl(url) {
   return url.split('/')[4];
 }
 
-async function getMoodboardLinks(url) {
-  const id = getIdByUrl(url);
+async function getPageProjects(url) {
+  const shortUrl = shortenUrl(url, 45);
 
-  sendToRenderer('moodboard:loading', { id });
+  sendToRenderer('page:loading', { shortUrl });
   await page.goto(url, { waitUntil: 'load', timeout: 0 });
 
-  sendToRenderer('moodboard:scrolling', { id });
-  await moodboardScroller(page);
+  sendToRenderer('page:scrolling', { shortUrl });
+  await pageScroller(page);
 
   return page.evaluate(async () => {
-    const selector = '.js-project-cover-title-link';
+    const selector = '.js-project-cover-image-link';
     const elements = Array.from(document.querySelectorAll(selector));
     const urls = elements.map((item) => item.getAttribute('href'));
     return urls;
@@ -145,11 +146,11 @@ async function generateProjectsList(urls) {
   projectsPassedByHistory = 0;
 
   for (const url of urls) {
-    if (url.includes('behance.net/collection/')) {
-      const moodboardProjects = await getMoodboardLinks(url);
-      projects = [...projects, ...moodboardProjects];
-    } else {
+    if (url.includes('behance.net/gallery/')) {
       projects.push(url);
+    } else {
+      const pageProjects = await getPageProjects(url);
+      projects = [...projects, ...pageProjects];
     }
 
     projectsTotal = projects.length;
