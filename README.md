@@ -16,7 +16,7 @@ Written with Electron, Puppeteer and other JS libraries.
 - Or download repository, install all dependencies, then run 'npm start' (for JS developers).
 
 ## Notes
-- App settings and download history stored in {UserFolder}/.bedownloader  
+- App settings and download history stored in {OS UserFolder}/.bedownloader  
 - Skipping projects by download history can be disabled in config.ini (true by default).
 
 ## Screenshot
