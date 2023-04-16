@@ -4,7 +4,7 @@ Bulk image downloader for Behance URLs (galleries, moodboards, profiles, likes).
 Written with Electron, Puppeteer and other JS libraries.
 
 ## Features
-- Parses given URLs for galleries and downloads all images from them.
+- Parses URLs for galleries and downloads all images from them.
 - Downloads full-size original images if it available.
 - Writes information about project into downloades images (JPEG metadata).
 - Keeps history for all downloaded projects.
