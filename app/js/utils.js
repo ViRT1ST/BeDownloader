@@ -28,10 +28,10 @@ function convertToLatinizedKebab(string) {
   return string.toLowerCase();
 }
 
-const shortenUrl = (url, max) => {
+function shortenUrl(url, max) {
   url = url.split('/').slice(3).join('/');
   return url.length <= max ? `[${url}]` : `[${url.slice(0, max)}...]`;
-};
+}
 
 async function downloadFile(url, filepath) {
   const res = await fetch(url);
