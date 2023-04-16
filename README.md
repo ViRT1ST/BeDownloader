@@ -1,6 +1,6 @@
 BeDownloader
 ==========================
-Bulk image downloader for Behance URLs (galleries, moodboards, profiles).  
+Bulk image downloader for Behance URLs (galleries, moodboards, profiles, likes).  
 Written with Electron, Puppeteer and other JS libraries.
 
 ## Features
