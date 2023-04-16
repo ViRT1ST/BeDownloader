@@ -1,14 +1,14 @@
 BeDownloader
 ==========================
-Bulk image downloader for Behance URLs (galleries, moodboards, profiles, likes).  
+Bulk image downloader for Behance URLs (projects, moodboards, profiles, likes).  
 Written with Electron, Puppeteer and other JS libraries.
 
 ## Features
-- Parses URLs for galleries and downloads all images from them.
+- Parses provided URLs, finds projects, and then downloads all images from those projects.
 - Downloads full-size original images if it available.
-- Writes information about project into downloades images (JPEG metadata).
+- Writes information about project into downloaded images (JPEG metadata).
 - Keeps history for all downloaded projects.
-- Has the ability to skip downloading a project if its URL is found in the history.
+- Has ability to skip downloading a project if its URL is found in history.
 - Portable app, don't need installation.
 
 ## Usage
