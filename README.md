@@ -17,12 +17,11 @@ Written with Electron, Puppeteer and other JS libraries.
 
 ## Notes
 - App settings and download history stored in {UserFolder}/.bedownloader  
-- Skipping projects by download history can be disabled in config.ini
+- Skipping projects by download history can be disabled in config.ini (true by default).
 
 ## Screenshot
 ![screenshot](screenshots/launched.png)
 
 ## Todo
-- Advanced settings in UI.
 - Support for download embeded 360-degree panoramas from kuula.co.
 - Mac and Linux versions.
