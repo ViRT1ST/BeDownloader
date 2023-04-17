@@ -1,8 +1,8 @@
 # MY DATA
 .backups/
 release-builds/
-[chrome-linux-110876]/
-[chrome-win64-110876]/
+\[chrome-linux-110876\]/
+\[chrome-win64-110876\]/
 project.txt
 
 # Logs

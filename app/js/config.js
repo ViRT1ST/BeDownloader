@@ -61,15 +61,6 @@ function getPuppeteerSettings() {
     win32: './[chrome-win64-110876]/chrome.exe'
   };
 
-  if (isDevMode) {
-    return {
-      args: [],
-      defaultViewport: null,
-      headless: false,
-      executablePath: chromeApp[platform]
-    };
-  }
-
   return {
     args: ['--start-maximized'],
     defaultViewport: { width: 1920, height: 1080 },
