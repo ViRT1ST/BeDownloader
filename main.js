@@ -50,9 +50,7 @@ app.on('ready', () => {
 
 app.on('window-all-closed', () => {
   saveConfig();
-  if (!config.isMac) {
-    app.quit();
-  }
+  app.quit();
 });
 
 app.whenReady().then(() => {

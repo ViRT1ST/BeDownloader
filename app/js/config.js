@@ -7,10 +7,15 @@ const { createDirIfNotExists } = require('./utils');
 
 const isDevMode = false;
 
-const appFolderName = '.bedownloader';
+const platform = process.platform.toString();
+const isMac = platform === 'darwin';
+const isWin = platform === 'win32';
+
+const appFolderName = isWin ? '.bedownloader' : 'bedownloader';
 
 const config = {
-  isMac: process.platform === 'darwin',
+  isMac,
+  isWin,
   settingsFolder: path.join(os.homedir(), appFolderName),
   settingsFile: path.join(os.homedir(), appFolderName, 'config.ini'),
   downloadFolder: path.join(os.homedir(), appFolderName, 'downloads'),
@@ -37,8 +42,6 @@ function loadConfig() {
   } catch (err) { /* ignore */ }
 }
 
-loadConfig();
-
 function saveConfig() {
   createDirIfNotExists(config.settingsFolder);
   const configToSave = {
@@ -51,14 +54,19 @@ function saveConfig() {
 }
 
 function getPuppeteerSettings() {
-  const chrome = './.cache/puppeteer/chrome/win64-1108766/chrome-win/chrome.exe';
+  const chromeApp = {
+    // darwin: './[chrome-darwin-110876]/Chromium.app/Contents/MacOS/Chromium',
+    darwin: null,
+    linux: './[chrome-linux-110876]/chrome',
+    win32: './[chrome-win64-110876]/chrome.exe'
+  };
 
   if (isDevMode) {
     return {
       args: [],
       defaultViewport: null,
       headless: false,
-      executablePath: chrome,
+      executablePath: chromeApp[platform]
     };
   }
 
@@ -66,13 +74,13 @@ function getPuppeteerSettings() {
     args: ['--start-maximized'],
     defaultViewport: { width: 1920, height: 1080 },
     headless: true,
-    executablePath: chrome,
+    executablePath: isDevMode ? null : chromeApp[platform]
   };
 }
 
 function getElectronSettings() {
   return {
-    title: 'BeDownloader 1.0.8',
+    title: 'BeDownloader 1.0.9',
     width: 800,
     height: 600,
     icon: './app/img/icons/Icon_512x512.png',
@@ -85,6 +93,9 @@ function getElectronSettings() {
     },
   };
 }
+
+loadConfig();
+saveConfig();
 
 module.exports.config = config;
 module.exports.saveConfig = saveConfig;

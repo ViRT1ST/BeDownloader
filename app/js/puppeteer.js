@@ -251,7 +251,6 @@ function correctProjectData(data) {
 
   const allImages = images.concat(imagesFromRequests);
   const filteredImages = allImages.filter(checkImageUrl);
-  console.log(allImages);
 
   const correctedImages = filteredImages.map((item) => {
     return item.includes('/project_modules/')

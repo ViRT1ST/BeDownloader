@@ -36,8 +36,9 @@ button.addEventListener('click', (e) => {
     updateUiAsReady();
   } else {
     const dest = getCorrectedPath();
-    const regex = /behance.net\//;
-    const urls = urlsInput.value.split('\n').filter((item) => regex.test(item));
+    const urls = urlsInput.value.split('\n')
+      .filter((item) => item.includes('behance.net'))
+      .map((item) => item.split('?')[0]);
 
     if (urls.length === 0) {
       infoStatus.innerHTML = '[error] list is empty';

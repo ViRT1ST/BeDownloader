@@ -1,11 +1,9 @@
 # MY DATA
 .backups/
 release-builds/
-app/js/testing.js
-app/js/testing.js
+[chrome-linux-110876]/
+[chrome-win64-110876]/
 project.txt
-*.jpg
-
 
 # Logs
 logs
