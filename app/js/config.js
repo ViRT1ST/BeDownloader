@@ -5,7 +5,7 @@ const ini = require('ini');
 
 const { createDirIfNotExists } = require('./utils');
 
-const isDevMode = false;
+const isDevMode = true;
 
 const platform = process.platform.toString();
 const isMac = platform === 'darwin';
