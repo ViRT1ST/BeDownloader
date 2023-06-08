@@ -92,6 +92,12 @@ function writeArrayToFile(filename, array) {
   } catch (error) { /* ignore */ }
 }
 
+function makeValidUrl(url) {
+  return url.includes('behance.net/')
+    ? url
+    : `https://www.behance.net${url}`;
+}
+
 module.exports.addZeroForNumberLessTen = addZeroForNumberLessTen;
 module.exports.replaceNonEnglishBySymbol = replaceNonEnglishBySymbol;
 module.exports.removeMultipleDashes = removeMultipleDashes;
@@ -103,3 +109,4 @@ module.exports.downloadFile = downloadFile;
 module.exports.saveObjectIntoImageExif = saveObjectIntoImageExif;
 module.exports.readFileToArray = readFileToArray;
 module.exports.writeArrayToFile = writeArrayToFile;
+module.exports.makeValidUrl = makeValidUrl;

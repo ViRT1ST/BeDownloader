@@ -14,7 +14,8 @@ const {
   downloadFile,
   saveObjectIntoImageExif,
   readFileToArray,
-  writeArrayToFile
+  writeArrayToFile,
+  makeValidUrl
 } = require('./utils');
 
 let browser;
@@ -46,7 +47,7 @@ async function interceptImageRequests() {
     if (resourceType === 'image') {
       imagesFromRequests.push(url);
       req.abort();
-    } else if (req.resourceType === 'media') {
+    } else if (resourceType === 'media') {
       req.abort();
     } else {
       req.continue();
@@ -130,10 +131,20 @@ async function getPageProjects(url) {
   await pageScroller(page);
 
   return page.evaluate(async () => {
-    const selector = '.js-project-cover-image-link';
-    const elements = Array.from(document.querySelectorAll(selector));
-    const urls = elements.map((item) => item.getAttribute('href'));
-    return urls;
+    const selectors = [
+      '.GridItem-coverLink-YQ8', // Moodboard items
+      '.e2e-ProjectCoverNeue-link', // Profile items
+      '.ContentGrid-gridItem-XZq' // Liked items
+    ];
+
+    let foundLinks = [];
+    for (const selector of selectors) {
+      const elements = Array.from(document.querySelectorAll(selector));
+      const urls = elements.map((item) => item.getAttribute('href'));
+      foundLinks = [...foundLinks, ...urls];
+    }
+
+    return [...new Set(foundLinks)];
   });
 }
 
@@ -150,7 +161,12 @@ async function generateProjectsList(urls) {
       projects.push(url);
     } else {
       const pageProjects = await getPageProjects(url);
-      projects = [...projects, ...pageProjects];
+      console.log('pageProjects', pageProjects);
+      const goodProjects = pageProjects.filter((x) => x && x.includes('/gallery/'));
+      console.log('goodProjects', goodProjects);
+      const validProjects = goodProjects.map((x) => makeValidUrl(x));
+      console.log('validProjects', validProjects);
+      projects = [...projects, ...validProjects];
     }
 
     projectsTotal = projects.length;

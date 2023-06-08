@@ -5,7 +5,7 @@ const ini = require('ini');
 
 const { createDirIfNotExists } = require('./utils');
 
-const isDevMode = true;
+const isDevMode = false;
 
 const platform = process.platform.toString();
 const isMac = platform === 'darwin';
@@ -71,7 +71,7 @@ function getPuppeteerSettings() {
 
 function getElectronSettings() {
   return {
-    title: 'BeDownloader 1.0.9',
+    title: 'BeDownloader 1.1.0',
     width: 800,
     height: 600,
     icon: './app/img/icons/Icon_512x512.png',
