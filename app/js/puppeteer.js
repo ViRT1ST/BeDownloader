@@ -161,11 +161,8 @@ async function generateProjectsList(urls) {
       projects.push(url);
     } else {
       const pageProjects = await getPageProjects(url);
-      console.log('pageProjects', pageProjects);
       const goodProjects = pageProjects.filter((x) => x && x.includes('/gallery/'));
-      console.log('goodProjects', goodProjects);
       const validProjects = goodProjects.map((x) => makeValidUrl(x));
-      console.log('validProjects', validProjects);
       projects = [...projects, ...validProjects];
     }
 
