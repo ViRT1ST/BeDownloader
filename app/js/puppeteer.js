@@ -15,7 +15,8 @@ const {
   saveObjectIntoImageExif,
   readFileToArray,
   writeArrayToFile,
-  makeValidUrl
+  makeValidUrl,
+  extraWaitForPromise
 } = require('./utils');
 
 let browser;
@@ -55,9 +56,27 @@ async function interceptImageRequests() {
   });
 }
 
+async function auth() {
+  const url = 'https://www.behance.net/';
+  await page.goto(url, { waitUntil: 'load', timeout: 0 });
+  await extraWaitForPromise(2000);
+
+  await page.evaluate(() => {
+    const ls = {
+      key: 'adobeid_ims_access_token/BehanceWebSusi1/false/AdobeID,additional_info.roles,be.pro2.external_client,creative_cloud,creative_sdk,gnav,openid,sao.cce_private',
+      val: '{"REAUTH_SCOPE":"reauthenticated","client_id":"BehanceWebSusi1","scope":"AdobeID,openid,gnav,sao.cce_private,creative_cloud,creative_sdk,be.pro2.external_client,additional_info.roles","expire":"2023-12-31T09:31:45.374Z","user_id":"EC9C64D654450E0E0A4C98A2@AdobeID","tokenValue":"eyJhbGciOiJSUzI1NiIsIng1dSI6Imltc19uYTEta2V5LWF0LTEuY2VyIiwia2lkIjoiaW1zX25hMS1rZXktYXQtMSIsIml0dCI6ImF0In0.eyJpZCI6IjE2OTUwMjk1MDk2NTVfNjQ2NmMxODUtNTdiNi00Mzg4LWE0YWItMTc4Mjk2Zjk3OWM0X3VlMSIsInR5cGUiOiJhY2Nlc3NfdG9rZW4iLCJjbGllbnRfaWQiOiJCZWhhbmNlV2ViU3VzaTEiLCJ1c2VyX2lkIjoiRUM5QzY0RDY1NDQ1MEUwRTBBNEM5OEEyQEFkb2JlSUQiLCJhcyI6Imltcy1uYTEiLCJhYV9pZCI6IkVDOUM2NEQ2NTQ0NTBFMEUwQTRDOThBMkBBZG9iZUlEIiwiY3RwIjowLCJmZyI6IlhaSUZXVUk3VlBQNU1IVUtHTVFWWUhBQUhNPT09PT09Iiwic2lkIjoiMTY5NTAyOTEzNTc3Nl83NTRhM2YzYS1iNjQ1LTQ0YzUtODU2Zi1iMjE1NzdjMTFkN2ZfdWUxIiwibW9pIjoiZGE1ZjhkZSIsInBiYSI6Ik1lZFNlY05vRVYsTG93U2VjIiwiZXhwaXJlc19pbiI6Ijg2NDAwMDAwIiwic2NvcGUiOiJBZG9iZUlELG9wZW5pZCxnbmF2LHNhby5jY2VfcHJpdmF0ZSxjcmVhdGl2ZV9jbG91ZCxjcmVhdGl2ZV9zZGssYmUucHJvMi5leHRlcm5hbF9jbGllbnQsYWRkaXRpb25hbF9pbmZvLnJvbGVzIiwiY3JlYXRlZF9hdCI6IjE2OTUwMjk1MDk2NTUifQ.S3QJ_dXKM1c-nVpKqp0GAUmoYZMi8RzdqAMqEyJjnm5eYeGwlroD4dSOE1Q8dSKF-YvnikxBXylBP3JfHSlTM8tIZecCJ0NUFNCuYjmVo5_sae58jP1h4p_mYzDeSiWZc5-LA_9hYD1RR3cfQ2dSqEhv82tyqGxuNBf42hp4EsR-e_o9JaAm8xucg4sebPYDzTvndubB83GvV8ItXMKKLB6PJds7lSLOPBiL0cJeGq_W66AwxI4fPCljOLoj_lrCkiUSfq4u2p5xiPO8gsqi6xkdVR5DcmBjhzSjHn7Q1hQCLK4XuxCLgo3bR_DSOYPVEoocYn1kROi459jGhK5E_Q","sid":"1695029135776_754a3f3a-b645-44c5-856f-b21577c11d7f_ue1","state":{},"fromFragment":false,"impersonatorId":"","isImpersonatedSession":false,"other":"{}","pbaSatisfiedPolicies":["MedSecNoEV","LowSec"]}'
+    };
+    localStorage.setItem(ls.key, ls.val);
+  });
+
+  await extraWaitForPromise(2000);
+  await page.goto(url, { waitUntil: 'load', timeout: 0 });
+}
+
 async function initPuppeteer() {
   const settings = getPuppeteerSettings();
   browser = await puppeteer.launch(settings);
+
   page = await browser.newPage();
   browserPID = browser.process().pid;
 
@@ -70,6 +89,7 @@ async function initPuppeteer() {
   imagesFromRequests = [];
 
   await interceptImageRequests();
+  await auth();
 }
 
 function killPuppeteer() {
@@ -130,7 +150,7 @@ async function getPageProjects(url) {
   sendToRenderer('page:scrolling', { shortUrl });
   await pageScroller(page);
 
-  return page.evaluate(async () => {
+  return page.evaluate(() => {
     const selectors = [
       '.GridItem-coverLink-YQ8', // Moodboard items
       '.e2e-ProjectCoverNeue-link', // Profile items
@@ -195,7 +215,7 @@ async function parseProjectData(url) {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
   await page.waitForTimeout(3000);
 
-  return page.evaluate(async (id) => {
+  return page.evaluate((id) => {
     function getMetaProperty(propertyName) {
       return document.head.querySelector(`meta[property="${propertyName}"]`)
         .getAttribute('content');

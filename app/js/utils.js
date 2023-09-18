@@ -98,6 +98,12 @@ function makeValidUrl(url) {
     : `https://www.behance.net${url}`;
 }
 
+function extraWaitForPromise(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 module.exports.addZeroForNumberLessTen = addZeroForNumberLessTen;
 module.exports.replaceNonEnglishBySymbol = replaceNonEnglishBySymbol;
 module.exports.removeMultipleDashes = removeMultipleDashes;
@@ -110,3 +116,4 @@ module.exports.saveObjectIntoImageExif = saveObjectIntoImageExif;
 module.exports.readFileToArray = readFileToArray;
 module.exports.writeArrayToFile = writeArrayToFile;
 module.exports.makeValidUrl = makeValidUrl;
+module.exports.extraWaitForPromise = extraWaitForPromise;
