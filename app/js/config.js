@@ -39,6 +39,8 @@ function loadConfig() {
     loadOption('skipProjectsByHistory', main.skipProjectsByHistory);
     loadOption('scrollingTimeout', main.scrollingTimeout);
     loadOption('betweenImagesDelay', main.betweenImagesDelay);
+    loadOption('authKey', main.authKey);
+    loadOption('authVal', main.authVal);
   } catch (err) { /* ignore */ }
 }
 
@@ -49,6 +51,8 @@ function saveConfig() {
     skipProjectsByHistory: config.skipProjectsByHistory,
     scrollingTimeout: config.scrollingTimeout,
     betweenImagesDelay: config.betweenImagesDelay,
+    authKey: config.authKey,
+    authVal: config.authVal
   };
   fs.writeFileSync(config.settingsFile, ini.stringify(configToSave, { section: 'main' }));
 }
@@ -64,7 +68,7 @@ function getPuppeteerSettings() {
   return {
     args: ['--start-maximized'],
     defaultViewport: { width: 1920, height: 1080 },
-    headless: true,
+    headless: false,
     executablePath: isDevMode ? null : chromeApp[platform]
   };
 }

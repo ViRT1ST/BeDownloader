@@ -201,29 +201,29 @@ async function parseProjectData(url) {
         .getAttribute('content');
     }
 
-    function getImagesFromJson() {
-      let images = [];
+    // function getImagesFromJson() {
+    //   let images = [];
 
-      try {
-        const jsonElement = document.getElementById('beconfig-store_state');
-        const jsonObj = JSON.parse(jsonElement.innerHTML);
-        const { modules } = jsonObj.project.project;
+    //   try {
+    //     const jsonElement = document.getElementById('beconfig-store_state');
+    //     const jsonObj = JSON.parse(jsonElement.innerHTML);
+    //     const { modules } = jsonObj.project.project;
 
-        for (let i = 0; i < modules.length; i++) {
-          const { components, src } = modules[i];
+    //     for (let i = 0; i < modules.length; i++) {
+    //       const { components, src } = modules[i];
 
-          if (typeof components === 'object') {
-            images = [...images, ...components.map((item) => item.src)];
-          }
+    //       if (typeof components === 'object') {
+    //         images = [...images, ...components.map((item) => item.src)];
+    //       }
 
-          if (typeof src === 'string') {
-            images = [...images, src];
-          }
-        }
-      } catch (error) { /* ignore */ }
+    //       if (typeof src === 'string') {
+    //         images = [...images, src];
+    //       }
+    //     }
+    //   } catch (error) { /* ignore */ }
 
-      return images;
-    }
+    //   return images;
+    // }
 
     const title = getMetaProperty('og:title');
     const owners = getMetaProperty('og:owners');
@@ -231,8 +231,10 @@ async function parseProjectData(url) {
 
     const elements = Array.from(document.querySelectorAll('img'));
     const imagesFromDom = elements.map((item) => item.getAttribute('src'));
-    const imagesFromJson = getImagesFromJson();
-    const images = imagesFromDom.concat(imagesFromJson);
+    // const imagesFromJson = getImagesFromJson();
+    // const images = imagesFromDom.concat(imagesFromJson);
+
+    const images = [...imagesFromDom];
 
     return { title, owners, url, id, images };
   }, id);
