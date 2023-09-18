@@ -11,7 +11,7 @@ const {
 } = require('./app/js/puppeteer');
 
 /* ========================================================= */
-/* Puppeteer                                                 */
+/* Puppeteer                                                */
 /* ========================================================= */
 
 async function runPuppeteer(urls) {
