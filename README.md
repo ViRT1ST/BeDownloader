@@ -27,14 +27,15 @@ Written with Electron, Puppeteer and other JS libraries.
 ## Skipping projects by download history
 Can be enabled in "settings\config.ini" (false by default).
 
-## Issues with downloading NSFW projects
+## Issues with downloading adult NSFW projects
 Projects with adult content requires user authorization to access them.  
-So, in this case, you need login in Behance in your browser and copy auth token from Chrome DevTools.  
+So, in this case, you need login in Behance in your browser, open Chrome DevTools (Ctrl+Shift+I)
+and copy auth token from "Local Storage".
 Then you need paste it in "settings\config.ini".  
 Here screenshots how to do it:
 [Copy token from your browser](screenshots/token_from_chrome.png),
-[Paste token into config.ini](screenshots/token_in_config.png) 
-
+[Paste token into config.ini](screenshots/token_in_config.png)  
+After this you can launch app and download any projects.
 
 ## Screenshot
 ![screenshot](screenshots/launched.png)
