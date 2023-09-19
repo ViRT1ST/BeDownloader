@@ -28,11 +28,12 @@ Written with Electron, Puppeteer and other JS libraries.
 Can be enabled in "settings\config.ini" (false by default).
 
 ## Issues with downloading NSFW projects
-Project with adult content require user authorization to access them.
-So, in this case, you need login in Behance in your browser and copy auth token from Chrome DevTools.
-Then you need paste it in "settings\config.ini".
+Projects with adult content requires user authorization to access them.  
+So, in this case, you need login in Behance in your browser and copy auth token from Chrome DevTools.  
+Then you need paste it in "settings\config.ini".  
 Here screenshots how to do it:
-[Take token from browser](screenshots/token_from_chrome.png) | [Paste token to config.ini](screenshots/token_in_config.png) 
+[Take token from browser](screenshots/token_from_chrome.png) | 
+[Paste token to config.ini](screenshots/token_in_config.png) 
 
 
 ## Screenshot
