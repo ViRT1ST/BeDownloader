@@ -37,7 +37,7 @@ Here instructions how to get it and use it with app:
 - Navigate to "Local Storage" and copy token from it (as showed in
 [screenshot](screenshots/token_from_chrome.png)).  
 - Open "settings\config.ini" and paste copied string into it (as showed in
-([screenshot](screenshots/token_in_config.png)).
+[screenshot](screenshots/token_in_config.png)).
 
 
 After this you can launch app and download any projects.
