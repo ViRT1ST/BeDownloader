@@ -31,9 +31,9 @@ Can be enabled in "settings\config.ini" (false by default).
 Projects with adult content requires user authorization to access them.  
 So, in this case, you need login in Behance in your browser and copy auth token from Chrome DevTools.  
 Then you need paste it in "settings\config.ini".  
-Here screenshots how to do it:
-[Take token from browser](screenshots/token_from_chrome.png) | 
-[Paste token to config.ini](screenshots/token_in_config.png) 
+Here screenshots how to do it:  
+> [Copy token from your browser](screenshots/token_from_chrome.png) | 
+> [Paste token into config.ini](screenshots/token_in_config.png) 
 
 
 ## Screenshot
