@@ -1,5 +1,4 @@
 const path = require('path');
-const os = require('os');
 const fs = require('fs');
 const ini = require('ini');
 
@@ -11,37 +10,46 @@ const platform = process.platform.toString();
 const isMac = platform === 'darwin';
 const isWin = platform === 'win32';
 
-const appFolderName = isWin ? '.bedownloader' : 'bedownloader';
+const settingsFolder = 'settings';
+const downloadFolder = 'downloads';
 
 const config = {
   isMac,
   isWin,
-  settingsFolder: path.join(os.homedir(), appFolderName),
-  settingsFile: path.join(os.homedir(), appFolderName, 'config.ini'),
-  downloadFolder: path.join(os.homedir(), appFolderName, 'downloads'),
-  historyFile: path.join(os.homedir(), appFolderName, 'history.txt'),
-  skipProjectsByHistory: true,
+  downloadFolder: path.join(process.cwd(), downloadFolder),
+  settingsFolder: path.join(process.cwd(), settingsFolder),
+  settingsFile: path.join(process.cwd(), settingsFolder, 'config.ini'),
+  historyFile: path.join(process.cwd(), settingsFolder, 'history.txt'),
+  skipProjectsByHistory: false,
   scrollingTimeout: 10000,
   betweenImagesDelay: 500,
+  localStorageToken: 'none',
   isAborted: false,
 };
 
 function loadOption(name, value) {
-  if (value.toString() !== 'undefined') {
+  if (String(value) !== 'undefined' && String(value) !== 'none') {
     config[name] = value;
   }
 }
 
 function loadConfig() {
-  try {
-    const { main } = ini.parse(fs.readFileSync(config.settingsFile, 'utf-8'));
-    loadOption('downloadFolder', main.downloadFolder);
-    loadOption('skipProjectsByHistory', main.skipProjectsByHistory);
-    loadOption('scrollingTimeout', main.scrollingTimeout);
-    loadOption('betweenImagesDelay', main.betweenImagesDelay);
-    // loadOption('authKey', main.authKey);
-    // loadOption('authVal', main.authVal);
-  } catch (err) { /* ignore */ }
+  const { main } = ini.parse(fs.readFileSync(config.settingsFile, 'utf-8'));
+  const userValues = [
+    'downloadFolder',
+    'skipProjectsByHistory',
+    'scrollingTimeout',
+    'betweenImagesDelay',
+    'localStorageToken'
+  ];
+
+  userValues.forEach((value) => {
+    try {
+      loadOption(value, main[value]);
+    } catch (err) {
+      /* ignore */
+    }
+  });
 }
 
 function saveConfig() {
@@ -51,8 +59,7 @@ function saveConfig() {
     skipProjectsByHistory: config.skipProjectsByHistory,
     scrollingTimeout: config.scrollingTimeout,
     betweenImagesDelay: config.betweenImagesDelay,
-    // authKey: config.authKey,
-    // authVal: config.authVal
+    localStorageToken: config.localStorageToken
   };
   fs.writeFileSync(config.settingsFile, ini.stringify(configToSave, { section: 'main' }));
 }
@@ -75,7 +82,7 @@ function getPuppeteerSettings() {
 
 function getElectronSettings() {
   return {
-    title: 'BeDownloader 1.2.0',
+    title: 'BeDownloader 1.3.0',
     width: 800,
     height: 600,
     icon: './app/img/icons/Icon_512x512.png',

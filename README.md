@@ -29,6 +29,3 @@ Written with Electron, Puppeteer and other JS libraries.
 
 ## Screenshot
 ![screenshot](screenshots/launched.png)
-
-## Todo
-- Support for download embeded 360-degree panoramas from kuula.co.

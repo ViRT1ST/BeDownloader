@@ -4,7 +4,6 @@ release-builds/
 \[chrome-linux-110876\]/
 \[chrome-win64-110876\]/
 \[chrome-darwin-110876\]/
-project.txt
 
 # Logs
 logs
