@@ -21,11 +21,19 @@ Written with Electron, Puppeteer and other JS libraries.
 2. Download repository archive and unpack it.
 3. Go to unpacked folder and run 'npm i' in terminal to install all JavaScript dependencies.
 4. Open "app\js\config.js" in text editor and change "const isDevMode = false" from false to true.
-4. Then run 'npm start' to start app.
+5. Then run 'npm start' to start app.
 ```
 
-## Notes
-- Skipping projects by download history can be enabled in "settings\config.ini" (false by default).
+## Skipping projects by download history
+Can be enabled in "settings\config.ini" (false by default).
+
+## Issues with downloading NSFW projects
+Project with adult content require user authorization to access them.
+So, in this case, you need login in Behance in your browser and copy auth token from Chrome DevTools.
+Then you need paste it in "settings\config.ini".
+Here screenshots how to do it:
+[Take token from browser](screenshots/token_from_chrome.png) | [Paste token to config.ini](screenshots/token_in_config.png) 
+
 
 ## Screenshot
 ![screenshot](screenshots/launched.png)
