@@ -59,20 +59,22 @@ async function interceptImageRequests() {
 async function auth() {
   const { localStorageToken } = config;
 
-  const url = 'https://www.behance.net/';
-  await page.goto(url, { waitUntil: 'load', timeout: 0 });
-  await extraWaitForPromise(2000);
+  if (localStorageToken.length > 100) {
+    const url = 'https://www.behance.net/';
+    await page.goto(url, { waitUntil: 'load', timeout: 0 });
+    await extraWaitForPromise(2000);
 
-  await page.evaluate((localStorageToken) => {
-    const ls = {
-      key: 'adobeid_ims_access_token/BehanceWebSusi1/false/AdobeID,additional_info.roles,be.pro2.external_client,creative_cloud,creative_sdk,gnav,openid,sao.cce_private',
-      val: localStorageToken
-    };
-    localStorage.setItem(ls.key, ls.val);
-  }, localStorageToken);
+    await page.evaluate((localStorageToken) => {
+      const ls = {
+        key: 'adobeid_ims_access_token/BehanceWebSusi1/false/AdobeID,additional_info.roles,be.pro2.external_client,creative_cloud,creative_sdk,gnav,openid,sao.cce_private',
+        val: localStorageToken
+      };
+      localStorage.setItem(ls.key, ls.val);
+    }, localStorageToken);
 
-  await extraWaitForPromise(2000);
-  await page.goto(url, { waitUntil: 'load', timeout: 0 });
+    await extraWaitForPromise(2000);
+    await page.goto(url, { waitUntil: 'load', timeout: 0 });
+  }
 }
 
 async function initPuppeteer() {

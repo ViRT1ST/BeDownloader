@@ -19,7 +19,7 @@ Written with Electron, Puppeteer and other JS libraries.
 ```
 1. Download and install Node.js v18.16.0 or newer.
 2. Download repository archive and unpack it.
-3. Go to unpacked folder and run 'npm i' in terminal to install all JavaScript dependencies.
+3. Go to unpacked folder and run 'npm i' in terminal to install all Node.js dependencies.
 4. Open "app\js\config.js" in text editor and change "const isDevMode = false" from false to true.
 5. Then run 'npm start' to start app.
 ```
