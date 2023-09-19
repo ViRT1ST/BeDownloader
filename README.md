@@ -31,14 +31,14 @@ Can be enabled in "settings\config.ini" (false by default).
 Projects with adult content requires user authorization to access them.  
 So, in this case, you need use your Behance account token.
 Here instructions how to get it:
-```
-\- Login in your Behance accoun in your browser  
-\- Open Chrome DevTools (Ctrl+Shift+I)  
-\- Navigate to Local Storage and copy token from it
+
+- Login in your Behance accoun in your browser  
+- Open Chrome DevTools (Ctrl+Shift+I)  
+- Navigate to Local Storage and copy token from it
 [screenshot example](screenshots/token_from_chrome.png).  
-\- Open "settings\config.ini" and paste copied string into it
+- Open "settings\config.ini" and paste copied string into it
 [screenshot example](screenshots/token_in_config.png).  
-```
+
 
 After this you can launch app and download any projects.
 
