@@ -32,11 +32,11 @@ Projects with adult content requires user authorization to access them.
 So, in this case, app need your Behance account token to download such projects.  
 Here instructions how to get it and use it with app:
 
-- Login into your Behance accoun in your browser.  
+- Login into your Behance account in your browser.  
 - Open Chrome DevTools (Ctrl+Shift+I).  
 - Navigate to "Local Storage" and copy token from it as showed in screenshot 
 ([screenshot](screenshots/token_from_chrome.png)).  
-- Open "settings\config.ini" and paste copied string into it 
+- Open "settings\config.ini" and paste copied string into it as showed in screenshot 
 ([screenshot](screenshots/token_in_config.png)).
 
 
