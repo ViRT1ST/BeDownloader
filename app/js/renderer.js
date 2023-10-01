@@ -46,7 +46,7 @@ button.addEventListener('click', (e) => {
       infoCompleted.innerHTML = `
         total projects: ... | completed: ... | skipped by history: ...
       `;
-      infoStatus.innerHTML = 'launching headless browser (takes 10-20 seconds) ...';
+      infoStatus.innerHTML = 'launching browser (takes 10-20 seconds if auth token used) ...';
       ipcRenderer.send('task:start', { dest, urls });
       updateUiAsRunning();
     }
