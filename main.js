@@ -19,13 +19,6 @@ async function runPuppeteer(urls) {
   await generateProjectsList(urls);
   await downloadProjects();
   await closePuppeteer();
-
-  // try {
-  //   await initPuppeteer();
-  //   await generateProjectsList(urls);
-  //   await downloadProjects();
-  //   closePuppeteer();
-  // } catch (err) { /* ignore */ }
 }
 
 /* ========================================================= */

@@ -69,7 +69,7 @@ function saveConfig() {
 }
 
 function getPuppeteerSettings() {
-  const chromeApp = {
+  const portableApp = {
     darwin: './[chrome-darwin-110876]/Chromium.app/Contents/MacOS/Chromium',
     linux: './[chrome-linux-110876]/chrome',
     win32: './[chrome-win64-110876]/chrome.exe'
@@ -79,7 +79,7 @@ function getPuppeteerSettings() {
     args: ['--start-maximized'],
     defaultViewport: { width: 1920, height: 1080 },
     headless: isBrowserHidden,
-    executablePath: isDevMode ? null : chromeApp[platform]
+    executablePath: isDevMode ? null : portableApp[platform]
   };
 }
 
