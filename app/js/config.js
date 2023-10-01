@@ -4,7 +4,10 @@ const ini = require('ini');
 
 const { createDirIfNotExists } = require('./utils');
 
+const title = 'BeDownloader 1.4.0';
+
 const isDevMode = false;
+const isBrowserHidden = true;
 
 const platform = process.platform.toString();
 const isMac = platform === 'darwin';
@@ -28,7 +31,8 @@ const config = {
 };
 
 function loadOption(name, value) {
-  if (String(value) !== 'undefined' && String(value) !== 'none') {
+  const badValues = /undefined|none|null/;
+  if (!badValues.test(String(value))) {
     config[name] = value;
   }
 }
@@ -66,8 +70,7 @@ function saveConfig() {
 
 function getPuppeteerSettings() {
   const chromeApp = {
-    // darwin: './[chrome-darwin-110876]/Chromium.app/Contents/MacOS/Chromium',
-    darwin: null,
+    darwin: './[chrome-darwin-110876]/Chromium.app/Contents/MacOS/Chromium',
     linux: './[chrome-linux-110876]/chrome',
     win32: './[chrome-win64-110876]/chrome.exe'
   };
@@ -75,14 +78,14 @@ function getPuppeteerSettings() {
   return {
     args: ['--start-maximized'],
     defaultViewport: { width: 1920, height: 1080 },
-    headless: true,
+    headless: isBrowserHidden,
     executablePath: isDevMode ? null : chromeApp[platform]
   };
 }
 
 function getElectronSettings() {
   return {
-    title: 'BeDownloader 1.3.0',
+    title,
     width: 800,
     height: 600,
     icon: './app/img/icons/Icon_512x512.png',
