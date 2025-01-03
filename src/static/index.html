@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-container">
+
+    <div class="settings-container">
+      <section class="urls">
+        <p class="label"><strong>URL List:</strong></p>
+        <textarea
+          id="urls-input"
+          autocomplete="off"
+          placeholder="Paste here link(s) to download.&#13;Moodboards, projects, profiles and likes are supported.&#13;&#13;E.g.&#13;https://www.behance.net/collection/123456789/Moodboard&#13;https://www.behance.net/gallery/123456789/Project&#13;https://www.behance.net/username&#13;https://www.behance.net/username/appreciated"
+        ></textarea>
+      </section>
+
+      <section class="destination">
+        <p class="label"><strong>Destination:</strong></p>
+        <div class="destination-inputs">
+          <input
+            id="destination-input"
+            type="text"
+            placeholder="Folder to save images..."
+            autocomplete="off"
+          />
+          <button class="btn" id="destination-btn">Select</button>
+        </div>
+      </section>
+
+      <section class="information">
+        <p class="label"><strong>Information:</strong></p>
+        <div class="information-wrapper">
+          <p class="information-item">
+            <span class="information-title">Overall progress:</span>
+            <span class="information-content" id="information-completed">none</span>
+          </p>
+          <p class="information-item">
+            <span class="information-title">Current status:</span>
+            <span class="information-content" id="information-status" >none</span>
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <div class="start-container">
+      <button class="btn" id="start-btn">Download</button>
+    </div>
+  
+  </div>
+
+  <script src="../renderer.js"></script>
+</body>
+</html>

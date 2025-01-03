@@ -19,10 +19,6 @@ strong {
 	color: gray;
 }
 
-/* html {
-	filter: invert();
-} */
-
 html, textarea, input, button {
 	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 }
@@ -163,4 +159,3 @@ section {
 	width: 100px;
 	margin-left: 10px;
 }
-

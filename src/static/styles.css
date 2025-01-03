@@ -1,0 +1,161 @@
+* {
+	box-sizing: border-box;
+	cursor: default;
+	margin: 0;
+}
+
+html {
+	background-color: white;
+	color: #000;
+	font-size: 15px;
+	line-height: 1.5;
+}
+
+strong {
+	font-weight: 500;
+}
+
+::placeholder {
+	color: gray;
+}
+
+html, textarea, input, button {
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+}
+
+textarea, input {
+	cursor: text;
+	display: block;
+}
+
+textarea, input, button, .information-wrapper {
+	border-radius: 3px;
+	outline: 0;
+}
+
+textarea, input, button {
+	font-size: 100%;
+	line-height: 1.15;
+	width: 100%;
+}
+
+textarea, input, .information-wrapper {
+	border: 1px solid gray;
+	padding: 10px;
+}
+
+textarea:focus, input:focus {
+	border-radius: 4px;
+	border: 2px solid #333;
+	padding: 9px;
+}
+
+input, button {
+	height: 40px;
+	min-height: 40px;
+	max-height: 40px;
+}
+
+textarea {
+	resize: none;
+}
+
+button {
+	background-color: #26a69a;
+	border: none;
+	color: #fff;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 14px;
+	height: 36px;
+	letter-spacing: .5px;
+	line-height: 36px;
+	outline: 0;
+	padding: 0 16px;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+	transition: background-color .2s ease-out;
+	vertical-align: middle;
+}
+
+button:hover {
+	background-color: #2bbbad;
+}
+
+button.working {
+	background-color: #E04E4A;
+}
+
+button.disabled {
+	pointer-events: none;
+	background-color: rgb(148, 148, 148);
+	color: #ffffff;
+	cursor: default;
+}
+
+input.disabled, textarea.disabled {
+	pointer-events: none;
+	background-color: #eee;
+	cursor: default;
+}
+
+section {
+	margin-bottom: 20px;
+}
+
+.app-container {
+	display: flex;
+	flex-direction: column;
+	margin: 0 auto;
+	min-height: 100vh;
+	padding: 15px 25px 35px 25px;
+	width: 100%;
+}
+
+.settings-container {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.urls {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.label {
+	margin-bottom: 4px;
+	margin-top: 0;
+}
+
+#urls-input {
+	flex-grow: 1;
+	width: 100%;
+}
+
+.information-item {
+	margin: 0;
+}
+
+.information-title {
+	font-weight: 500;
+}
+
+#start-btn {
+	margin-top: 10px;
+}
+
+.destination-inputs {
+	display: flex;
+}
+
+#destination-input {
+	flex-grow: 1;
+}
+
+#destination-btn {
+	width: 100px;
+	margin-left: 10px;
+}

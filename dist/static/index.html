@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-container">
@@ -13,13 +13,22 @@
     <div class="settings-container">
       <section class="urls">
         <p class="label"><strong>URL List:</strong></p>
-        <textarea id="urls-input" placeholder="Drop here link(s) to download.&#13;Moodboards, projects, profiles and likes are supported.&#13;&#13;E.g.&#13;https://www.behance.net/collection/123456789/Moodboard&#13;https://www.behance.net/gallery/123456789/Project&#13;https://www.behance.net/username&#13;https://www.behance.net/username/appreciated"></textarea>
+        <textarea
+          id="urls-input"
+          autocomplete="off"
+          placeholder="Paste here link(s) to download.&#13;Moodboards, projects, profiles and likes are supported.&#13;&#13;E.g.&#13;https://www.behance.net/collection/123456789/Moodboard&#13;https://www.behance.net/gallery/123456789/Project&#13;https://www.behance.net/username&#13;https://www.behance.net/username/appreciated"
+        ></textarea>
       </section>
 
       <section class="destination">
         <p class="label"><strong>Destination:</strong></p>
         <div class="destination-inputs">
-          <input id="destination-input" type="text" placeholder="Folder to save images..."></input>
+          <input
+            id="destination-input"
+            type="text"
+            placeholder="Folder to save images..."
+            autocomplete="off"
+          />
           <button class="btn" id="destination-btn">Select</button>
         </div>
       </section>
@@ -45,6 +54,6 @@
   
   </div>
 
-  <script src="js/renderer.js"></script>
+  <script src="../renderer.js"></script>
 </body>
 </html>

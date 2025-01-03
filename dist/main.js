@@ -1,0 +1,79 @@
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { userState, createUserFilesIfTheyDontExist, loadUserDataFromFile, saveUserDataToFile } from './states/user.js';
+import { electronSettings } from './configs/electron.js';
+import { appState } from './states/app.js';
+import { runDownloadTask } from './download.js';
+import { closeBrowser } from './utils.js';
+/* =============================================================
+First actions on app start
+============================================================= */
+createUserFilesIfTheyDontExist();
+loadUserDataFromFile();
+/* =============================================================
+Electron | Create window
+============================================================= */
+function createElectronWindow() {
+    appState.electronWindow = new BrowserWindow(electronSettings);
+    appState.electronWindow.loadFile('./static/index.html');
+    appState.electronWindow.on('closed', () => { appState.electronWindow = null; });
+}
+;
+/* =============================================================
+Electron | Internal events
+============================================================= */
+// Invokes after app initialization
+app.on('ready', () => {
+    createElectronWindow();
+});
+// Invokes when app is closing
+app.on('window-all-closed', () => {
+    if (!userState.isMac) {
+        saveUserDataToFile();
+        app.quit();
+    }
+});
+// Invokes when app becomes active
+app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createElectronWindow();
+    }
+});
+/* =============================================================
+Electron | Custom events
+============================================================= */
+// Invokes right after app start to update download folder 
+ipcMain.on('update-destination-folder', () => {
+    const electronWindow = appState.electronWindow;
+    if (!electronWindow) {
+        return;
+    }
+    electronWindow.webContents.send('update-destination-folder', {
+        path: userState.downloadFolder
+    });
+});
+// Invokes after download button click
+ipcMain.on('start-download-task', (event, { urls }) => {
+    runDownloadTask(urls);
+});
+// Invokes after cancel button click
+ipcMain.on('abort-download-task', async (event) => {
+    appState.isAborted = true;
+    closeBrowser(appState.browser);
+});
+// Invokes after destination button click
+ipcMain.on('open-select-directory-dialog', async (event) => {
+    const electronWindow = appState.electronWindow;
+    if (!electronWindow) {
+        return;
+    }
+    const { canceled, filePaths } = await dialog.showOpenDialog(electronWindow, {
+        properties: ['openDirectory']
+    });
+    if (canceled) {
+        return;
+    }
+    userState.downloadFolder = filePaths[0];
+    electronWindow.webContents.send('update-destination-folder', {
+        path: userState.downloadFolder
+    });
+});

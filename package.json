@@ -1,35 +1,32 @@
 {
   "name": "bedownloader",
   "productName": "BeDownloader",
-  "version": "1.4.0",
-  "description": "",
-  "main": "main.js",
-  "repo": "https://github.com/ViRT1ST/BeDownloader.git",
-  "scripts": {
-    "start": "electron .",
-    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=app/img/icons/mac/icon.icns --prune=true --out=release-builds",
-    "package-win": "electron-packager . --overwrite --platform=win32 --arch=x64 --icon=app/img/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"BeDownloader\"",
-    "package-lnx": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=app/img/icons/Icon_1024x1024.png --prune=true --out=release-builds"
-  },
+  "version": "2.0.0",
   "author": "ViRT1ST",
   "license": "ISC",
+  "description": "",
+  "keywords": [],
+  "repo": "https://github.com/ViRT1ST/BeDownloader.git",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && cpy src/static/* dist/static && cpy src/static/icons/* dist/static/icons",
+    "start": "npx electron dist/main.js",
+    "dev": "npm run build && npm run start"
+  },
   "dependencies": {
-    "ini": "^4.0.0",
-    "node-fetch": "^2.6.9",
-    "piexifjs": "^1.0.6",
-    "puppeteer": "^19.8.3",
+    "ini": "^5.0.0",
+    "node-fetch": "^3.3.2",
+    "piexif-ts": "^2.1.0",
+    "puppeteer": "^23.11.1",
     "transliteration": "^2.3.5"
   },
   "devDependencies": {
-    "electron": "^23.2.1",
-    "electron-packager": "^17.1.1",
-    "eslint": "^8.37.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-node": "^4.1.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.8.7"
+    "@types/ini": "^4.1.1",
+    "@types/node": "^22.10.2",
+    "cpy-cli": "^5.0.0",
+    "electron": "^33.2.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }
