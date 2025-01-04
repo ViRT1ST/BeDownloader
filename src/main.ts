@@ -3,8 +3,8 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import {
   userState,
   createUserFilesIfTheyDontExist,
-  loadUserDataFromFile,
-  saveUserDataToFile
+  loadUserSettingsFromFile,
+  saveUserSettingsToFile
 } from './states/user.js';
 import { electronSettings } from './configs/electron.js';
 import { appState } from './states/app.js';
@@ -16,7 +16,7 @@ First actions on app start
 ============================================================= */
 
 createUserFilesIfTheyDontExist();
-loadUserDataFromFile();
+loadUserSettingsFromFile();
 
 /* =============================================================
 Electron | Create window
@@ -24,7 +24,8 @@ Electron | Create window
 
 function createElectronWindow() {
   appState.electronWindow = new BrowserWindow(electronSettings);
-  appState.electronWindow.loadFile('./static/index.html');
+  // appState.electronWindow.loadFile('./static/index.html');
+  appState.electronWindow.loadFile(`${process.cwd()}/dist/static/index.html`);
   appState.electronWindow.on('closed', () => { appState.electronWindow = null });
 };
 
@@ -40,7 +41,7 @@ app.on('ready', () => {
 // Invokes when app is closing
 app.on('window-all-closed', () => {
   if (!userState.isMac) {
-    saveUserDataToFile();
+    saveUserSettingsToFile();
     app.quit();
   }
 });

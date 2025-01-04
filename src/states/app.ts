@@ -9,6 +9,7 @@ export const appState: AppState = {
   projectsTotal: 0,
   projectsCompleted: 0,
   projectsSkipped: 0,
+  projectsFailed: 0,
   historyList: [],
   isAborted: false
 }
@@ -21,6 +22,7 @@ export function resetPuppeteerDataInState() {
   appState.projectsTotal = 0,
   appState.projectsCompleted = 0,
   appState.projectsSkipped = 0,
+  appState.projectsFailed = 0,
   appState.historyList = [],
   appState.isAborted = false
 }

@@ -12,16 +12,16 @@ Bulk image downloader for Behance URLs (projects, moodboards, profiles, likes).W
 * Has ability to skip downloading a project if its URL is found in history.
 * Portable app, don't need installation.
 
-## Usage as portable app (for Windows users only)
+## Usage as portable app (currently for Windows users only)
 
-* Download portable app and run it (old version currentlly not working, will update it later)
+* Download portable app and run it
 
-## Usage as JS/TS project (for Windows users only)
+## Usage as Node.js project (currently for Windows users only)
 
 ```
 1. Download and install Node.js v20.9.0 or newer.
 2. Download repository archive and unpack it.
-3. Go to unpacked folder and run 'npm i' in terminal to install all Node.js dependencies.
+3. Go to the root of unpacked folder and run 'npm install' in terminal to install all projects dependencies.
 5. Then run 'npm run dev' to start app.
 ```
 

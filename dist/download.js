@@ -6,7 +6,7 @@ import { wait, sendToRenderer, formatUrlForUi, makeValidBehanceUrl, removeDuplic
 /* =============================================================
 Destructed Behance constants
 ============================================================= */
-const { mainPageUrl, pageWaitOptions, pageSelectorToWait, pageTimeToWait, projectSelectors, authLocalStorageKey } = behanceConstants;
+const { mainPageUrl, pageWaitOptions, pageSelectorToWait, pageTimeToWait, projectSelectors, betweenImagesDelay, authLocalStorageKey } = behanceConstants;
 /* =============================================================
 Create and launch browser
 ============================================================= */
@@ -147,7 +147,8 @@ export async function generateProjectsList(urls) {
         sendToRenderer(ew, 'update-completed-info', {
             total: appState.projectsTotal,
             done: appState.projectsCompleted,
-            skip: appState.projectsSkipped
+            skip: appState.projectsSkipped,
+            fail: appState.projectsFailed
         });
     }
     // Remove duplicates
@@ -162,7 +163,8 @@ export async function generateProjectsList(urls) {
     sendToRenderer(ew, 'update-completed-info', {
         total: appState.projectsTotal,
         done: appState.projectsCompleted,
-        skip: appState.projectsSkipped
+        skip: appState.projectsSkipped,
+        fail: appState.projectsFailed
     });
 }
 // Go to project page and collect data
@@ -207,17 +209,6 @@ async function gotoProjectPageAndCollectData(url) {
         return;
     }
 }
-// OK
-async function updateProjectDataW(url) {
-    let parsedData = await gotoProjectPageAndCollectData(url);
-    if (!parsedData) {
-        return;
-    }
-    return {
-        ...parsedData,
-        projectImages: getProjectImagesFromParsedImages(parsedData.projectImages)
-    };
-}
 async function taskEnding() {
     const ew = appState.electronWindow;
     if (!ew) {
@@ -234,7 +225,7 @@ async function taskEnding() {
     else if (projectsTotal === projectsSkipped) {
         finalStatus = 'all projects skipped by download history';
     }
-    else if (projectsTotal === projectsCompleted) {
+    else if (projectsTotal === projectsCompleted + projectsSkipped) {
         finalStatus = 'all images were downloaded successfully!';
     }
     else {
@@ -245,7 +236,7 @@ async function taskEnding() {
     await closeBrowser(appState.browser);
 }
 export async function downloadProjects() {
-    const { downloadFolder, betweenImagesDelay } = userState;
+    const { downloadFolder } = userState;
     const ew = appState.electronWindow;
     if (!ew) {
         return;
@@ -256,7 +247,7 @@ export async function downloadProjects() {
         let projectData = await gotoProjectPageAndCollectData(project);
         // Skip project if no data (can be caused by network errors)
         if (!projectData) {
-            appState.projectsSkipped += 1;
+            appState.projectsFailed += 1;
             continue;
         }
         // Update project data with only project images (filter out other images)
@@ -273,8 +264,8 @@ export async function downloadProjects() {
                 message: `downloading project ${projectId}, image: ${i + 1}/${projectImages.length}`
             });
             const imageUrl = projectImages[i];
-            const imagePath = generateFilePathForImage(projectData, imageUrl, i + 1, downloadFolder);
-            await downloadImage(projectData, imageUrl, imagePath);
+            const imageFilePath = generateFilePathForImage(projectData, imageUrl, i + 1, downloadFolder);
+            await downloadImage(projectData, imageUrl, imageFilePath);
             await wait(betweenImagesDelay);
         }
         if (!appState.isAborted) {
@@ -284,7 +275,8 @@ export async function downloadProjects() {
             sendToRenderer(ew, 'update-completed-info', {
                 total: appState.projectsTotal,
                 done: appState.projectsCompleted,
-                skip: appState.projectsSkipped
+                skip: appState.projectsSkipped,
+                fail: appState.projectsFailed
             });
         }
     }

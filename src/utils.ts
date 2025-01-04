@@ -15,7 +15,7 @@ import type { ProjectData } from './types.js';
 Electron utils
 ============================================================= */
 
-// Send message to renderer (script attached to electron frontend ui)
+// Send message to renderer (electron frontend ui)
 export function sendToRenderer(electronWindow: BrowserWindow, channel: string, data: any) {
   if (electronWindow) {
     electronWindow.webContents.send(channel, data);
@@ -165,7 +165,7 @@ export function convertToLatinized(string: string) {
   return transliterate(string);
 }
 
-// Convert string to latinized words with dash separator (URL-friendly)
+// Convert string to latinized words with dash separator (url-friendly)
 export function convertToLatinizedKebab(string: string) {
   string = convertToLatinized(string);
   string = replaceNonEnglishBySymbol(string, '-');
@@ -173,7 +173,7 @@ export function convertToLatinizedKebab(string: string) {
   return string.toLowerCase();
 }
 
-// Correct Behance URLs if domain is not included and remove URL params
+// Correct behance urls if domain is not included and remove url params
 export function makeValidBehanceUrl(url: string) {
   if (!url.includes('behance.net/')) {
     url = `https://www.behance.net${url}`
@@ -182,7 +182,7 @@ export function makeValidBehanceUrl(url: string) {
   return url.split('?')[0];
 }
 
-// Format supported Behance URLs for display in UI status
+// Format supported behance urls for display in ui status
 export function formatUrlForUi(url: string, max: number): string {
   try {
     const parts = url.split('/');
@@ -205,10 +205,50 @@ export function formatUrlForUi(url: string, max: number): string {
 }
 
 /* =============================================================
-Filepaths creating utils
+Files utils
 ============================================================= */
 
-// Generate file path for image that will be downloaded
+// Create directory if not exists
+export function createDirectoryIfNotExists(filePath: string) {
+  if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(filePath, { recursive: true });
+  }
+}
+
+// Create file if not exists
+export function createFileIfNotExists(filePath: string) {
+  if (!fs.existsSync(filePath)) {
+    fs.writeFileSync(filePath, '', 'utf8');
+  }
+}
+
+// Read text file to array
+export function readTextFileToArray(fileName: string) {
+  let linesArray: string[] = [];
+
+  try {
+    const fileContent = fs.readFileSync(fileName, 'utf-8');
+    linesArray = fileContent.trim().split(getBreakLine());
+
+  } catch (error: any) {
+    console.log(`Error reading text file to array | ${error?.message}`);
+  }
+
+  return linesArray;
+}
+
+// Write array to text file
+export function writeArrayToTextFile(fileName: string, array: any[]) {
+  try {
+    const lines = array.join(getBreakLine()).trim();
+    fs.writeFileSync(fileName, lines);
+
+  } catch (error: any) {
+    console.log(`Error writing array to text file | ${error?.message}`);
+  }
+}
+
+// Generate file path for download image
 export function generateFilePathForImage(
   projectData: ProjectData,
   imageUrl: string,
@@ -223,58 +263,14 @@ export function generateFilePathForImage(
   const number = addZeroForNumberLessTen(index);
   const extension = imageUrl.split('.').pop();
 
-  let filename = `${prefix}-${firstOwner}-${title}-${number}.${extension}`;
-  filename = removeMultipleDashes(filename);
+  let fileName = `${prefix}-${firstOwner}-${title}-${number}.${extension}`;
+  fileName = removeMultipleDashes(fileName);
 
-  return path.join(folderPath, filename)
+  return path.join(folderPath, fileName)
 }
 
-/* =============================================================
-Files utils
-============================================================= */
-
-// Create directory if not exists
-export function createDirectoryIfNotExists(filepath: string) {
-  if (!fs.existsSync(filepath)) {
-    fs.mkdirSync(filepath, { recursive: true });
-  }
-}
-
-// Create file if not exists
-export function createFileIfNotExists(filepath: string) {
-  if (!fs.existsSync(filepath)) {
-    fs.writeFileSync(filepath, '', 'utf8');
-  }
-}
-
-// Read text file to array
-export function readTextFileToArray(filename: string) {
-  let linesArray: string[] = [];
-
-  try {
-    const fileContent = fs.readFileSync(filename, 'utf-8');
-    linesArray = fileContent.trim().split(getBreakLine());
-
-  } catch (error: any) {
-    console.log(`Error reading text file to array | ${error?.message}`);
-  }
-
-  return linesArray;
-}
-
-// Write array to text file
-export function writeArrayToTextFile(filename: string, array: any[]) {
-  try {
-    const lines = array.join(getBreakLine()).trim();
-    fs.writeFileSync(filename, lines);
-
-  } catch (error: any) {
-    console.log(`Error writing array to text file | ${error?.message}`);
-  }
-}
-
-// Download file and save it to destination filepath
-export async function downloadFileToDisk(url: string, filepath: string) {
+// Download file and save it on disk
+export async function downloadFileToDisk(url: string, filePath: string) {
   try {
     const streamPipeline = util.promisify(stream.pipeline);
     const res = await fetch(url);
@@ -290,16 +286,16 @@ export async function downloadFileToDisk(url: string, filepath: string) {
     }
   
     // Save response body to the file
-    await streamPipeline(res.body, fs.createWriteStream(filepath));
+    await streamPipeline(res.body, fs.createWriteStream(filePath));
 
   } catch (error: any) {
     console.log(`Error downloading file | ${error?.message}`);
   }
 }
 
-function getFileSizeInKB(filepath: string) {
+function getFileSizeInKB(filePath: string) {
   try {
-    const sizeInBytes = fs.statSync(filepath).size;
+    const sizeInBytes = fs.statSync(filePath).size;
     return (sizeInBytes / 1024).toFixed(2);
 
   } catch (error) {
@@ -307,6 +303,7 @@ function getFileSizeInKB(filepath: string) {
   }
 }
 
+// Save project url in history file
 export function addProjectUrlToHistoryFile(projectUrl: string, historyFile: string) {
   const currentHistoryUrls = readTextFileToArray(historyFile);
 
@@ -333,36 +330,36 @@ function createImageDescriptionForExif(projectData: ProjectData, imageUrl: strin
 }
 
 // Write json into jpeg file
-export function writeJsonIntoImageDescription(json: string, filepath: string) {
-  if (typeof json !== 'string' || !/\.jpe?g$/i.test(filepath)) {
+export function writeJsonIntoImageDescription(json: string, filePath: string) {
+  if (typeof json !== 'string' || !/\.jpe?g$/i.test(filePath)) {
     return;
   }
 
   try {
-    // Read EXIF data from file
-    const fileAsBase64String = fs.readFileSync(filepath).toString('binary');
-    let exifData: IExif = piexif.load(fileAsBase64String)
+    // Read exif data from file
+    const fileAsBinaryString = fs.readFileSync(filePath).toString('binary');
+    let exifData: IExif = piexif.load(fileAsBinaryString)
 
-     // Create new fields with project information if there is no EXIF data at all
+     // Create new fields with project information if there is no exif data at all
     if (Object.keys(exifData).length === 0) {
       const newZeroth: IExifElement = {};
       newZeroth[TagValues.ImageIFD.ImageDescription] = json;
       newZeroth[TagValues.ImageIFD.Software] = 'BeDownloader app by ViRT1ST';
       exifData = {'0th': newZeroth};
 
-    // Otherwise update the "ImageDescription" tag only 
+    // Otherwise update the description tag only 
     } else {
       const existingZeroth = exifData['0th'] as IExifElement;
       existingZeroth[TagValues.ImageIFD.ImageDescription] = json;
     }
 
-    // Dump updated EXIF data and insert it into the image
+    // Dump updated exif data and insert it into the image
     const newExifBinary = piexif.dump(exifData);
-    const newPhotoData = piexif.insert(newExifBinary, fileAsBase64String);
+    const newPhotoData = piexif.insert(newExifBinary, fileAsBinaryString);
 
     // Write updated image back to file
     const fileBuffer = Buffer.from(newPhotoData, 'binary');
-    fs.writeFileSync(filepath, fileBuffer);
+    fs.writeFileSync(filePath, fileBuffer);
 
   } catch (error: any) {
     console.log(`Error updating image with new EXIF data | ${error?.message}`);
@@ -423,10 +420,10 @@ export async function downloadImage(
       const { name, ext } = path.parse(lastFile);
       const lastDigit = parseInt(name.split('-').pop()!, 10);
       const nextDigit = addZeroForNumberLessTen(lastDigit + 1);
-      const newFilename = `${existFilePatternStr}-${nextDigit}${ext}`;
-      const newFilepath = path.join(path.dirname(imageFilePath), newFilename);
+      const newFileName = `${existFilePatternStr}-${nextDigit}${ext}`;
+      const newFilePath = path.join(path.dirname(imageFilePath), newFileName);
 
-      fs.renameSync(tempFilePath, newFilepath);
+      fs.renameSync(tempFilePath, newFilePath);
     }
   } catch (error: any) {
     console.log(`Error processing downloaded image | ${error?.message}`);

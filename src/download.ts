@@ -1,6 +1,5 @@
 import puppeteer from 'puppeteer';
 
-import type { ProjectData } from './types.js';
 import { userState } from './states/user.js';
 import { puppeteerLaunchConfig, behanceConstants } from './configs/puppeteer.js';
 import { appState, resetPuppeteerDataInState } from './states/app.js';
@@ -31,6 +30,7 @@ const {
   pageSelectorToWait,
   pageTimeToWait,
   projectSelectors,
+  betweenImagesDelay,
   authLocalStorageKey
 } = behanceConstants;
 
@@ -204,7 +204,8 @@ export async function generateProjectsList(urls: string[]) {
     sendToRenderer(ew, 'update-completed-info', {
       total: appState.projectsTotal,
       done: appState.projectsCompleted,
-      skip: appState.projectsSkipped
+      skip: appState.projectsSkipped,
+      fail: appState.projectsFailed
     });
   }
   // Remove duplicates
@@ -222,7 +223,8 @@ export async function generateProjectsList(urls: string[]) {
   sendToRenderer(ew, 'update-completed-info', {
     total: appState.projectsTotal,
     done: appState.projectsCompleted,
-    skip: appState.projectsSkipped
+    skip: appState.projectsSkipped,
+    fail: appState.projectsFailed
   });
 }
 
@@ -274,20 +276,6 @@ async function gotoProjectPageAndCollectData(url: string) {
   }
 }
 
-// OK
-async function updateProjectDataW(url: string) {
-  let parsedData: ProjectData | undefined = await gotoProjectPageAndCollectData(url);
-
-  if (!parsedData) {
-    return;
-  }
-
-  return {
-    ...parsedData,
-    projectImages: getProjectImagesFromParsedImages(parsedData.projectImages)
-  };
-}
-
 async function taskEnding() {
   const ew = appState.electronWindow;
 
@@ -310,7 +298,7 @@ async function taskEnding() {
     finalStatus = 'no projects to download';
   } else if (projectsTotal === projectsSkipped) {
     finalStatus = 'all projects skipped by download history';
-  } else if (projectsTotal === projectsCompleted) {
+  } else if (projectsTotal === projectsCompleted + projectsSkipped) {
     finalStatus = 'all images were downloaded successfully!';
   } else {
     finalStatus = 'something went wrong...';
@@ -323,7 +311,7 @@ async function taskEnding() {
 
 
 export async function downloadProjects() {
-  const { downloadFolder, betweenImagesDelay } = userState;
+  const { downloadFolder } = userState;
   const ew = appState.electronWindow;
 
   if (!ew) {
@@ -337,7 +325,7 @@ export async function downloadProjects() {
 
     // Skip project if no data (can be caused by network errors)
     if (!projectData) {
-      appState.projectsSkipped += 1;
+      appState.projectsFailed += 1;
       continue
     }
 
@@ -357,8 +345,8 @@ export async function downloadProjects() {
         message: `downloading project ${projectId}, image: ${i + 1}/${projectImages.length}`
       });
       const imageUrl = projectImages[i];
-      const imagePath = generateFilePathForImage(projectData, imageUrl, i + 1, downloadFolder);
-      await downloadImage(projectData, imageUrl, imagePath);
+      const imageFilePath = generateFilePathForImage(projectData, imageUrl, i + 1, downloadFolder);
+      await downloadImage(projectData, imageUrl, imageFilePath);
       await wait(betweenImagesDelay);
     }
 
@@ -370,7 +358,8 @@ export async function downloadProjects() {
       sendToRenderer(ew, 'update-completed-info', {
         total: appState.projectsTotal,
         done: appState.projectsCompleted,
-        skip: appState.projectsSkipped
+        skip: appState.projectsSkipped,
+        fail: appState.projectsFailed
       });
     }
   }

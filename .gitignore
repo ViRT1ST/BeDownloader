@@ -1,9 +1,6 @@
-# Temp directories
+# Skipped directories
 .backups/
 release-builds/
-\[chrome-linux-110876\]/
-\[chrome-win64-110876\]/
-\[chrome-darwin-110876\]/
 \[chrome-win64-131.0.6778.204\]/
 
 # Dependency directories

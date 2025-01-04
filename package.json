@@ -1,18 +1,19 @@
 {
   "name": "bedownloader",
   "productName": "BeDownloader",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "ViRT1ST",
   "license": "ISC",
   "description": "",
   "keywords": [],
   "repo": "https://github.com/ViRT1ST/BeDownloader.git",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/main.js",
   "scripts": {
     "build": "tsc && cpy src/static/* dist/static && cpy src/static/icons/* dist/static/icons",
     "start": "npx electron dist/main.js",
-    "dev": "npm run build && npm run start"
+    "dev": "npm run build && npm run start",
+    "package-win": "npm run build && npx @electron/packager . --overwrite --platform=win32 --dir=dist --arch=x64 --icon=src/static/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"BeDownloader\""
   },
   "dependencies": {
     "ini": "^5.0.0",
@@ -22,6 +23,7 @@
     "transliteration": "^2.3.5"
   },
   "devDependencies": {
+    "@electron/packager": "^18.3.6",
     "@types/ini": "^4.1.1",
     "@types/node": "^22.10.2",
     "cpy-cli": "^5.0.0",

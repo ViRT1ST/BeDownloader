@@ -26,8 +26,14 @@ function getCorrectedPathForOs(dest) {
         ? dest.replace(/\\+/g, '/')
         : dest;
 }
-function buildInfoCompleted(total, done, skip) {
-    return `total projects: ${total} | completed: ${done} | skipped by history: ${skip}`;
+function buildInfoCompleted(total, done, skip, fail) {
+    const message = [
+        `total projects: ${total}`,
+        `completed: ${done}`,
+        `skipped by history: ${skip}`,
+        `skipped by errors: ${fail}`
+    ].join(' | ');
+    return message;
 }
 function handleStartClick() {
     isTaskRunning = true;
@@ -38,7 +44,7 @@ function handleStartClick() {
         return;
     }
     infoStatus.innerHTML = 'launching browser ...';
-    infoCompleted.innerHTML = buildInfoCompleted('...', '...', '...');
+    infoCompleted.innerHTML = buildInfoCompleted('...', '...', '...', '...');
     ipcRenderer.send('start-download-task', { urls });
     updateUiAsRunning();
 }
@@ -75,8 +81,8 @@ ipcRenderer.on('update-destination-folder', (event, { path }) => {
 ipcRenderer.on('update-status-info', (event, { message }) => {
     infoStatus.innerHTML = message;
 });
-ipcRenderer.on('update-completed-info', (event, { total, done, skip }) => {
-    infoCompleted.innerHTML = buildInfoCompleted(total, done, skip);
+ipcRenderer.on('update-completed-info', (event, { total, done, skip, fail }) => {
+    infoCompleted.innerHTML = buildInfoCompleted(total, done, skip, fail);
 });
 ipcRenderer.on('update-ui-as-ready', (event) => {
     isTaskRunning = false;

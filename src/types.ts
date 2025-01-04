@@ -9,6 +9,7 @@ export type AppState = {
   projectsTotal: number;
   projectsSkipped: number;
   projectsCompleted: number;
+  projectsFailed: number;
   historyList: string[];
   isAborted: boolean;
 };
@@ -23,7 +24,6 @@ export type UserState = {
   downloadFolder: string;
   skipProjectsByHistory: boolean;
   showBrowser: boolean;
-  betweenImagesDelay: number;
   localStorageToken: string;
 };
 
@@ -31,7 +31,6 @@ export type UserStateIni = {
   downloadFolder: string;
   skipProjectsByHistory: boolean;
   showBrowser: boolean;
-  betweenImagesDelay: number;
   localStorageToken: string;
 };
 

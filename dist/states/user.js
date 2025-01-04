@@ -16,14 +16,13 @@ export const userState = {
     downloadFolder: path.join(process.cwd(), 'downloads'),
     skipProjectsByHistory: false,
     showBrowser: false,
-    betweenImagesDelay: 500,
     localStorageToken: 'none',
 };
 /* =============================================================
 Functions for loading and saving user state
 ============================================================= */
 // Reading user-modifiable fields from config file
-export function loadUserDataFromFile() {
+export function loadUserSettingsFromFile() {
     try {
         const isConfigFileExists = fs.existsSync(userState.configFile);
         if (!isConfigFileExists) {
@@ -35,16 +34,16 @@ export function loadUserDataFromFile() {
         const mainSection = iniObject.main;
         // load user fields
         if (typeof mainSection.downloadFolder === 'string') {
-            userState.downloadFolder = mainSection.downloadFolder;
+            const userSavedDownloadFolder = mainSection.downloadFolder;
+            if (fs.existsSync(userSavedDownloadFolder)) {
+                userState.downloadFolder = mainSection.downloadFolder;
+            }
         }
         if (typeof mainSection.skipProjectsByHistory === 'boolean') {
             userState.skipProjectsByHistory = mainSection.skipProjectsByHistory;
         }
         if (typeof mainSection.showBrowser === 'boolean') {
             userState.showBrowser = mainSection.showBrowser;
-        }
-        if (typeof mainSection.betweenImagesDelay === 'string') {
-            userState.betweenImagesDelay = Number(mainSection.betweenImagesDelay);
         }
         if (typeof mainSection.localStorageToken === 'string') {
             userState.localStorageToken = mainSection.localStorageToken;
@@ -56,13 +55,12 @@ export function loadUserDataFromFile() {
 }
 ;
 // Saving user-modifiable fields to config file
-export function saveUserDataToFile() {
+export function saveUserSettingsToFile() {
     createDirectoryIfNotExists(userState.settingsFolder);
     const configToSave = {
         downloadFolder: userState.downloadFolder,
         skipProjectsByHistory: userState.skipProjectsByHistory,
         showBrowser: userState.showBrowser,
-        betweenImagesDelay: userState.betweenImagesDelay,
         localStorageToken: userState.localStorageToken
     };
     const stringsToSave = ini.stringify(configToSave, { section: 'main' });
@@ -71,7 +69,7 @@ export function saveUserDataToFile() {
 // Create user files if they don't exist
 export function createUserFilesIfTheyDontExist() {
     if (!fs.existsSync(userState.configFile)) {
-        saveUserDataToFile();
+        saveUserSettingsToFile();
     }
     if (!fs.existsSync(userState.historyFile)) {
         createFileIfNotExists(userState.historyFile);
