@@ -5,7 +5,7 @@ export type AppState = {
   electronWindow: BrowserWindow | null;
   browser: Browser | null;
   page: Page | null;
-  projects: string[];
+  projects: ProjectLink[];
   projectsTotal: number;
   projectsSkipped: number;
   projectsCompleted: number;
@@ -23,6 +23,7 @@ export type UserState = {
   historyFile: string;
   downloadFolder: string;
   skipProjectsByHistory: boolean;
+  downloadModulesAsGalleries: boolean;
   showBrowser: boolean;
   localStorageToken: string;
 };
@@ -33,6 +34,12 @@ export type UserStateIni = {
   showBrowser: boolean;
   localStorageToken: string;
 };
+
+export type ProjectLink = {
+  projectVariant: 'gallery' | 'image';
+  projectUrl: string;
+  projectImage: string;
+}
 
 export type ProjectData = {
   projectTitle: string;

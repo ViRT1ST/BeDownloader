@@ -20,6 +20,7 @@ export const userState: UserState = {
   historyFile: path.join(process.cwd(), 'settings', 'history.txt'),
   downloadFolder: path.join(process.cwd(), 'downloads'),
   skipProjectsByHistory: false,
+  downloadModulesAsGalleries: false,
   showBrowser: false,
   localStorageToken: 'none',
 };
@@ -56,6 +57,10 @@ export function loadUserSettingsFromFile() {
       userState.skipProjectsByHistory = mainSection.skipProjectsByHistory;
     }
 
+    if (typeof mainSection.downloadModulesAsGalleries === 'boolean') {
+      userState.downloadModulesAsGalleries = mainSection.downloadModulesAsGalleries;
+    }
+
     if (typeof mainSection.showBrowser === 'boolean') {
       userState.showBrowser = mainSection.showBrowser;
     }
@@ -76,6 +81,7 @@ export function saveUserSettingsToFile() {
   const configToSave = {
     downloadFolder: userState.downloadFolder,
     skipProjectsByHistory: userState.skipProjectsByHistory,
+    downloadModulesAsGalleries: userState.downloadModulesAsGalleries,
     showBrowser: userState.showBrowser,
     localStorageToken: userState.localStorageToken
   };

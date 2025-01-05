@@ -1,7 +1,8 @@
 BeDownloader
 ===
 
-Bulk image downloader for Behance URLs (projects, moodboards, profiles, likes).Written with Electron, Puppeteer and other JS libraries.
+Bulk image downloader for Behance URLs (projects, moodboards, profiles, likes, modules).\
+Written with Electron, Puppeteer and other JS libraries.
 
 ## Features
 
@@ -21,8 +22,8 @@ Bulk image downloader for Behance URLs (projects, moodboards, profiles, likes).W
 ```
 1. Download and install Node.js v20.9.0 or newer.
 2. Download repository archive and unpack it.
-3. Go to the root of unpacked folder and run 'npm install' in terminal to install all projects dependencies.
-5. Then run 'npm run dev' to start app.
+3. Go to the root of unpacked folder and run 'npm install' in terminal to install all dependencies.
+4. Run 'npm run dev' in terminal to start app.
 ```
 
 ## Skipping projects by download history
@@ -31,7 +32,9 @@ Can be enabled in "settings\\config.ini" (false by default).
 
 ## Issues with downloading adult NSFW projects
 
-Projects with adult content requires user authorization to access them.So, in this case, app need your Behance account token to download such projects.Here instructions how to get it and use it with app:
+Projects with adult content requires user authorization to access them.\
+So, in this case, app requires your Behance account token to download these projects.\
+Here instructions how to get it and use it with app:
 
 * Login into your Behance account in your browser.
 * Open Chrome DevTools (Ctrl+Shift+I).

@@ -2,11 +2,11 @@ import puppeteer from 'puppeteer';
 import { userState } from './states/user.js';
 import { puppeteerLaunchConfig, behanceConstants } from './configs/puppeteer.js';
 import { appState, resetPuppeteerDataInState } from './states/app.js';
-import { wait, sendToRenderer, formatUrlForUi, makeValidBehanceUrl, removeDuplicatesFromArray, removeItemsFromArray, getProjectImagesFromParsedImages, readTextFileToArray, closeBrowser, generateFilePathForImage, downloadImage, createDirectoryIfNotExists, disableRequestsForMediaFiles, addProjectUrlToHistoryFile, } from './utils.js';
+import { wait, sendToRenderer, formatUrlForUi, makeValidBehanceUrl, getProjectImagesFromParsedImages, readTextFileToArray, closeBrowser, generateFilePathForImage, downloadImage, createDirectoryIfNotExists, disableRequestsForMediaFiles, addProjectUrlToHistoryFile, } from './utils.js';
 /* =============================================================
 Destructed Behance constants
 ============================================================= */
-const { mainPageUrl, pageWaitOptions, pageSelectorToWait, pageTimeToWait, projectSelectors, betweenImagesDelay, authLocalStorageKey } = behanceConstants;
+const { mainPageUrl, pageWaitOptions, pageSelectorToWait, pageTimeToWait, gridSelectors, projectSelectors, betweenImagesDelay, authLocalStorageKey } = behanceConstants;
 /* =============================================================
 Create and launch browser
 ============================================================= */
@@ -17,6 +17,30 @@ export async function launchBrowser() {
     };
     appState.browser = await puppeteer.launch(options);
     appState.page = await appState.browser.newPage();
+}
+/* =============================================================
+Electron update UI actions
+============================================================= */
+// Refresh completed info in electron UI with info from appState
+function updateCompletedInfo() {
+    const ew = appState.electronWindow;
+    if (!ew) {
+        return;
+    }
+    sendToRenderer(ew, 'update-completed-info', {
+        total: appState.projectsTotal,
+        done: appState.projectsCompleted,
+        skip: appState.projectsSkipped,
+        fail: appState.projectsFailed
+    });
+}
+// Update status info in electron UI with new message
+function updateStatusInfo(message) {
+    const ew = appState.electronWindow;
+    if (!ew) {
+        return;
+    }
+    sendToRenderer(ew, 'update-status-info', { message });
 }
 /* =============================================================
 Puppeteer actions
@@ -30,26 +54,27 @@ async function auth() {
     if (!ew || !page || !tokenValue || !tokenValue.includes('REAUTH_SCOPE')) {
         return;
     }
-    sendToRenderer(ew, 'update-status-info', {
-        message: 'loading Behance main page...'
-    });
-    await page.goto(mainPageUrl, pageWaitOptions);
-    await page.waitForSelector(pageSelectorToWait, pageTimeToWait);
-    await wait(3000);
-    sendToRenderer(ew, 'update-status-info', {
-        message: 'authenticating...'
-    });
-    await page.evaluate((tokenKey, tokenValue) => {
-        try {
-            localStorage.setItem(tokenKey, tokenValue);
-        }
-        catch (error) {
-            return;
-        }
-    }, tokenKey, tokenValue);
-    // Reload main page
-    await page.goto(mainPageUrl, pageWaitOptions);
-    await wait(3000);
+    try {
+        updateStatusInfo('loading Behance main page...');
+        await page.goto(mainPageUrl, pageWaitOptions);
+        await page.waitForSelector(pageSelectorToWait, pageTimeToWait);
+        await wait(3000);
+        updateStatusInfo('authenticating by user token...');
+        await page.evaluate((tokenKey, tokenValue) => {
+            try {
+                localStorage.setItem(tokenKey, tokenValue);
+            }
+            catch (error) {
+                return;
+            }
+        }, tokenKey, tokenValue);
+        // Reload main page
+        await page.goto(mainPageUrl, pageWaitOptions);
+        await wait(3000);
+    }
+    catch (error) {
+        return;
+    }
 }
 // Scroll to bottom for moodboard/profiles/likes pages
 async function scrollToBottom() {
@@ -80,6 +105,7 @@ async function scrollToBottom() {
 }
 // Get projects urls from moodboard/profiles/likes pages
 async function collectProjectsUrlsFromPage(url) {
+    const { downloadModulesAsGalleries } = userState;
     const ew = appState.electronWindow;
     const page = appState.page;
     if (!ew || !page) {
@@ -88,35 +114,69 @@ async function collectProjectsUrlsFromPage(url) {
     try {
         const shortPageUrl = `[${formatUrlForUi(url, 45)}]`;
         // Waiting page to load
-        sendToRenderer(ew, 'update-status-info', {
-            message: `loading page ${shortPageUrl} ...`
-        });
+        updateStatusInfo(`loading page ${shortPageUrl} ...`);
         await page.goto(url, pageWaitOptions);
         await page.waitForSelector(pageSelectorToWait, pageTimeToWait);
         // Scrolling
-        sendToRenderer(ew, 'update-status-info', {
-            message: `scrolling page ${shortPageUrl} to get all projects ...`
-        });
+        updateStatusInfo(`scrolling page to get all projects (can take some time)...`);
         await scrollToBottom();
         await wait(1000);
         // Getting projects urls
-        return page.evaluate(async (projectSelectors) => {
+        return page.evaluate(async (gridSelectors, projectSelectors, downloadModulesAsGalleries) => {
             try {
-                let foundUrls = [];
-                for (const selector of projectSelectors) {
-                    const selectorElements = Array.from(document.querySelectorAll(selector));
-                    const selectorUrls = selectorElements
-                        .map((element) => element.getAttribute('href'))
-                        .filter((href) => href !== null)
-                        .filter((href) => href.includes('/gallery/'));
-                    foundUrls = [...foundUrls, ...selectorUrls];
+                const foundProjects = [];
+                // Get all grid elements
+                const allFoundGrids = [];
+                for (const selector of gridSelectors) {
+                    const gridElements = Array.from(document.querySelectorAll(selector));
+                    for (const gridElement of gridElements) {
+                        allFoundGrids.push(gridElement);
+                        // At moodboards pages only first grid needed
+                        // Second is "Projects we think you might like"
+                        if (window.location.href.includes('/moodboard/')) {
+                            break;
+                        }
+                        ;
+                    }
                 }
-                return [...new Set(foundUrls)];
+                // Get all projects elements
+                const projectElements = [];
+                for (const selector of projectSelectors) {
+                    const foundProjects = allFoundGrids
+                        .flatMap((parent) => Array.from(parent.querySelectorAll(selector)));
+                    projectElements.push(...foundProjects);
+                }
+                // Create object for each project
+                for (const element of projectElements) {
+                    const parent = element.parentElement;
+                    const projectUrl = parent.querySelector('a')?.getAttribute('href');
+                    const projectImage = parent.querySelector('img')?.getAttribute('src');
+                    // Skip if project data is invalid
+                    if (!projectUrl || !projectImage || !projectUrl.includes('/gallery/')) {
+                        continue;
+                    }
+                    // Project object
+                    const projectLink = {
+                        projectVariant: 'gallery',
+                        projectUrl,
+                        projectImage
+                    };
+                    // sometimes projects are just one image and not are galleries
+                    if (element.tagName === 'DIV' && parent.tagName !== 'ARTICLE') {
+                        projectLink.projectVariant = 'image';
+                    }
+                    if (downloadModulesAsGalleries) {
+                        projectLink.projectVariant = 'gallery';
+                    }
+                    foundProjects.push(projectLink);
+                }
+                return foundProjects;
             }
             catch (error) {
+                console.log(error.message);
                 return;
             }
-        }, projectSelectors);
+        }, gridSelectors, projectSelectors, downloadModulesAsGalleries);
     }
     catch (error) {
         return;
@@ -124,7 +184,7 @@ async function collectProjectsUrlsFromPage(url) {
 }
 // Collect projects only URLs from all URLs pasted by user in input form
 export async function generateProjectsList(urls) {
-    const { skipProjectsByHistory } = userState;
+    const { skipProjectsByHistory, downloadModulesAsGalleries } = userState;
     const ew = appState.electronWindow;
     if (!ew) {
         return;
@@ -132,78 +192,100 @@ export async function generateProjectsList(urls) {
     // Cycle all user URLs and grabing projects from them
     for (const url of urls) {
         if (url.includes('behance.net/gallery/')) {
-            appState.projects.push(url);
+            appState.projects.push({
+                projectVariant: 'gallery',
+                projectUrl: makeValidBehanceUrl(url),
+                projectImage: ''
+            });
         }
         else {
-            const projectsUrls = await collectProjectsUrlsFromPage(url);
-            if (projectsUrls) {
-                const correctedUrls = projectsUrls.map((item) => makeValidBehanceUrl(item));
-                appState.projects = [...appState.projects, ...correctedUrls];
+            let projects = await collectProjectsUrlsFromPage(url);
+            if (!projects) {
+                appState.projectsFailed += 1;
+            }
+            else {
+                projects = projects.map((item) => {
+                    return {
+                        projectVariant: item.projectVariant,
+                        projectUrl: makeValidBehanceUrl(item.projectUrl),
+                        projectImage: item.projectImage
+                    };
+                });
+                appState.projects = [...appState.projects, ...projects];
             }
         }
-        // Update total count
+        // Update total count and UI
         appState.projectsTotal = appState.projects.length;
-        // Update renderer
-        sendToRenderer(ew, 'update-completed-info', {
-            total: appState.projectsTotal,
-            done: appState.projectsCompleted,
-            skip: appState.projectsSkipped,
-            fail: appState.projectsFailed
-        });
+        updateCompletedInfo();
     }
-    // Remove duplicates
-    appState.projects = removeDuplicatesFromArray(appState.projects);
     // Remove projects that are in history
     if (skipProjectsByHistory) {
-        appState.projects = removeItemsFromArray(appState.projects, appState.historyList);
+        const filteredProjects = [];
+        for (const project of appState.projects) {
+            const isInHistory = appState.historyList.includes(project.projectUrl);
+            const isProjectVariantIsGallery = project.projectVariant === 'gallery';
+            if (isInHistory && isProjectVariantIsGallery) {
+                appState.projectsSkipped += 1;
+            }
+            else {
+                filteredProjects.push(project);
+            }
+        }
+        appState.projects = filteredProjects;
+        // Update skipped count
+        appState.projectsSkipped = appState.projectsTotal - appState.projects.length;
+        updateCompletedInfo();
     }
-    // Update skipped count
-    appState.projectsSkipped = appState.projectsTotal - appState.projects.length;
-    // Update renderer
-    sendToRenderer(ew, 'update-completed-info', {
-        total: appState.projectsTotal,
-        done: appState.projectsCompleted,
-        skip: appState.projectsSkipped,
-        fail: appState.projectsFailed
-    });
 }
 // Go to project page and collect data
-async function gotoProjectPageAndCollectData(url) {
+async function gotoProjectPageAndCollectData(projectLink) {
     const ew = appState.electronWindow;
     const page = appState.page;
-    const id = url.split('/')[4];
+    const id = projectLink.projectUrl.split('/')[4];
     if (!ew || !page || !id) {
         return;
     }
     try {
-        sendToRenderer(ew, 'update-status-info', {
-            message: `loading project page [${id}] to collect its data and images...`
-        });
-        await page.goto(url, pageWaitOptions);
+        updateStatusInfo(`loading project page [${id}] to collect its data and images...`);
+        await page.goto(projectLink.projectUrl, pageWaitOptions);
         await wait(3000);
-        return page.evaluate((id, url) => {
+        return page.evaluate(async (id, projectLink) => {
             try {
+                const { projectVariant, projectUrl, projectImage } = projectLink;
                 function getMetaProperty(propertyName) {
                     const selector = document.head.querySelector(`meta[property="${propertyName}"]`);
                     return selector ? selector.getAttribute('content') : '';
                 }
+                // Adult content protection
+                if (document.body.classList.contains('is-locked')) {
+                    return;
+                }
                 const projectTitle = getMetaProperty('og:title') || '';
                 const projectOwners = getMetaProperty('og:owners') || '';
-                const projectImages = Array.from(document.querySelectorAll('img'))
-                    .map((item) => item.getAttribute('src'))
-                    .filter((item) => item !== null);
+                const projectImages = [];
+                if (projectVariant === 'image') {
+                    projectImages.push(projectImage);
+                }
+                else {
+                    Array.from(document.querySelectorAll('img')).forEach((item) => {
+                        const src = item.getAttribute('src');
+                        if (src !== null) {
+                            projectImages.push(src);
+                        }
+                    });
+                }
                 return {
+                    projectId: id,
                     projectTitle,
                     projectOwners,
                     projectImages,
-                    projectUrl: url,
-                    projectId: id,
+                    projectUrl
                 };
             }
             catch (error) {
                 return;
             }
-        }, id, url);
+        }, id, projectLink);
     }
     catch (error) {
         return;
@@ -214,7 +296,7 @@ async function taskEnding() {
     if (!ew) {
         return;
     }
-    const { isAborted, projectsTotal, projectsCompleted, projectsSkipped } = appState;
+    const { isAborted, projectsTotal, projectsCompleted, projectsSkipped, projectsFailed } = appState;
     let finalStatus = '';
     if (isAborted) {
         finalStatus = 'process is aborted by user';
@@ -226,17 +308,21 @@ async function taskEnding() {
         finalStatus = 'all projects skipped by download history';
     }
     else if (projectsTotal === projectsCompleted + projectsSkipped) {
-        finalStatus = 'all images were downloaded successfully!';
+        finalStatus = 'all projects were downloaded successfully!';
+    }
+    else if (projectsFailed > 0) {
+        finalStatus = 'some projects were failed to download';
     }
     else {
-        finalStatus = 'something went wrong...';
+        finalStatus = 'unknown error...';
     }
-    sendToRenderer(ew, 'update-status-info', { message: finalStatus });
+    updateCompletedInfo();
+    updateStatusInfo(finalStatus);
     sendToRenderer(ew, 'update-ui-as-ready', null);
     await closeBrowser(appState.browser);
 }
 export async function downloadProjects() {
-    const { downloadFolder } = userState;
+    const { downloadFolder, downloadModulesAsGalleries } = userState;
     const ew = appState.electronWindow;
     if (!ew) {
         return;
@@ -248,6 +334,7 @@ export async function downloadProjects() {
         // Skip project if no data (can be caused by network errors)
         if (!projectData) {
             appState.projectsFailed += 1;
+            updateCompletedInfo();
             continue;
         }
         // Update project data with only project images (filter out other images)
@@ -258,11 +345,11 @@ export async function downloadProjects() {
         const { projectId, projectUrl, projectImages } = projectData;
         // Download images of current project
         for (let i = 0; i < projectImages.length; i++) {
-            if (appState.isAborted)
+            if (appState.isAborted) {
+                updateCompletedInfo();
                 break;
-            sendToRenderer(ew, 'update-status-info', {
-                message: `downloading project ${projectId}, image: ${i + 1}/${projectImages.length}`
-            });
+            }
+            updateStatusInfo(`downloading project ${projectId}, image: ${i + 1}/${projectImages.length}`);
             const imageUrl = projectImages[i];
             const imageFilePath = generateFilePathForImage(projectData, imageUrl, i + 1, downloadFolder);
             await downloadImage(projectData, imageUrl, imageFilePath);
@@ -270,14 +357,11 @@ export async function downloadProjects() {
         }
         if (!appState.isAborted) {
             appState.projectsCompleted += 1;
-            appState.historyList.push(projectUrl);
-            addProjectUrlToHistoryFile(projectUrl, userState.historyFile);
-            sendToRenderer(ew, 'update-completed-info', {
-                total: appState.projectsTotal,
-                done: appState.projectsCompleted,
-                skip: appState.projectsSkipped,
-                fail: appState.projectsFailed
-            });
+            updateCompletedInfo();
+            if (project.projectVariant === 'gallery') {
+                appState.historyList.push(projectUrl);
+                addProjectUrlToHistoryFile(projectUrl, userState.historyFile);
+            }
         }
     }
 }

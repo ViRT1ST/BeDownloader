@@ -15,11 +15,15 @@ export const behanceConstants = {
     pageTimeToWait: { timeout: 60000 },
     pageWaitOptions: { waitUntil: 'networkidle0', timeout: 0 },
     betweenImagesDelay: 500,
+    // Projects wrapper selectors
+    gridSelectors: [
+        '.ContentGrid-root-wzR', // in profile and likes
+        '.ImageGrid-gridWrapper-TSx', // in moodboards
+    ],
+    // Projects items selectors
     projectSelectors: [
-        '.GridItem-coverLink-YQ8', // Moodboard items
-        '.e2e-ProjectCoverNeue-link', // Profile items
-        '.ContentGrid-gridItem-XZq', // Liked items
-        '.ImageModuleContent-mainImage-IG1' // Image items
+        '.ContentGrid-gridItem-XZq', // in profile and likes
+        '.GridItem-imageWrap-Hp0', // in moodboards
     ],
     authLocalStorageKey: [
         'adobeid_ims_access_token/BehanceWebSusi1/false/AdobeID',
