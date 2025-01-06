@@ -26,8 +26,8 @@ function createElectronWindow() {
   appState.electronWindow = new BrowserWindow(electronSettings);
   // appState.electronWindow.loadFile('./static/index.html');
   appState.electronWindow.loadFile(`${process.cwd()}/dist/static/index.html`);
-  appState.electronWindow.on('closed', () => { appState.electronWindow = null });
-};
+  appState.electronWindow.on('closed', () => { appState.electronWindow = null; });
+}
 
 /* =============================================================
 Electron | Internal events

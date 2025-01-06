@@ -18,7 +18,6 @@ function createElectronWindow() {
     appState.electronWindow.loadFile(`${process.cwd()}/dist/static/index.html`);
     appState.electronWindow.on('closed', () => { appState.electronWindow = null; });
 }
-;
 /* =============================================================
 Electron | Internal events
 ============================================================= */

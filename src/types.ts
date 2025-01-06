@@ -39,7 +39,7 @@ export type ProjectLink = {
   projectVariant: 'gallery' | 'image';
   projectUrl: string;
   projectImage: string;
-}
+};
 
 export type ProjectData = {
   projectTitle: string;

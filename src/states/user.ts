@@ -72,7 +72,7 @@ export function loadUserSettingsFromFile() {
   } catch (error: any) {
     console.log(error.message);
   }
-};
+}
 
 // Saving user-modifiable fields to config file
 export function saveUserSettingsToFile() {

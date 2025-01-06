@@ -174,7 +174,7 @@ async function collectProjectsUrlsFromPage(url: string) {
     // Scrolling
     updateStatusInfo(`scrolling page to get all projects (can take some time)...`);
     await scrollToBottom();
-    await wait(1000) 
+    await wait(1000);
 
     // Getting projects urls
     return page.evaluate(async (gridSelectors, projectSelectors, downloadModulesAsGalleries) => {
@@ -191,7 +191,7 @@ async function collectProjectsUrlsFromPage(url: string) {
             // Second is "Projects we think you might like"
             if (window.location.href.includes('/moodboard/')) {
               break;
-            };
+            }
           }
         }
 
@@ -270,6 +270,8 @@ export async function generateProjectsList(urls: string[]) {
 
       if (!projects) {
         appState.projectsFailed += 1;
+        console.log('collectProjectsUrlsFromPage(): failed');
+        console.log('collectProjectsUrlsFromPage():', projects);
 
       } else {
         projects = projects.map((item) => {
@@ -430,6 +432,8 @@ export async function downloadProjects() {
     if (!projectData) {
       appState.projectsFailed += 1;
       updateCompletedInfo();
+      console.log('gotoProjectPageAndCollectData(): failed');
+      console.log('gotoProjectPageAndCollectData():', projectData);
       continue;
     }
 

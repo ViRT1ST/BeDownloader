@@ -136,7 +136,6 @@ async function collectProjectsUrlsFromPage(url) {
                         if (window.location.href.includes('/moodboard/')) {
                             break;
                         }
-                        ;
                     }
                 }
                 // Get all projects elements
@@ -202,6 +201,8 @@ export async function generateProjectsList(urls) {
             let projects = await collectProjectsUrlsFromPage(url);
             if (!projects) {
                 appState.projectsFailed += 1;
+                console.log('collectProjectsUrlsFromPage(): failed');
+                console.log('collectProjectsUrlsFromPage():', projects);
             }
             else {
                 projects = projects.map((item) => {
@@ -335,6 +336,8 @@ export async function downloadProjects() {
         if (!projectData) {
             appState.projectsFailed += 1;
             updateCompletedInfo();
+            console.log('gotoProjectPageAndCollectData(): failed');
+            console.log('gotoProjectPageAndCollectData():', projectData);
             continue;
         }
         // Update project data with only project images (filter out other images)

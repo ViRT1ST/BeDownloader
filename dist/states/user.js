@@ -57,7 +57,6 @@ export function loadUserSettingsFromFile() {
         console.log(error.message);
     }
 }
-;
 // Saving user-modifiable fields to config file
 export function saveUserSettingsToFile() {
     createDirectoryIfNotExists(userState.settingsFolder);

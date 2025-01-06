@@ -155,7 +155,6 @@ export function formatUrlForUi(url, max) {
         if (parts.length < 5) {
             return url;
         }
-        ;
         let urlFormattedForUi = parts.slice(3).join('/').split('?')[0];
         if (urlFormattedForUi.length >= max) {
             urlFormattedForUi = urlFormattedForUi.substring(0, max - 3) + '...';
@@ -301,6 +300,9 @@ export function writeJsonIntoImageDescription(json, filePath) {
 // Download image and save it to destination folder
 export async function downloadImage(projectData, imageUrl, imageFilePath) {
     try {
+        // Left for debbuging
+        console.log('downloadImage(): Image URL:', imageUrl);
+        console.log('downloadImage(): Expected image save path:', imageFilePath);
         // Create temp file path 
         const tempFileExt = path.parse(imageFilePath).ext;
         const tempFilePath = path.join(path.dirname(imageFilePath), `temp-image${tempFileExt}`);
@@ -342,6 +344,7 @@ export async function downloadImage(projectData, imageUrl, imageFilePath) {
             const nextDigit = addZeroForNumberLessTen(lastDigit + 1);
             const newFileName = `${existFilePatternStr}-${nextDigit}${ext}`;
             const newFilePath = path.join(path.dirname(imageFilePath), newFileName);
+            console.log('downloadImage(): New (non-expected) image save path:', newFilePath);
             fs.renameSync(tempFilePath, newFilePath);
         }
     }

@@ -13,13 +13,13 @@ export const appState = {
 };
 // Reset puppeteer and downloads related data
 export function resetPuppeteerDataInState() {
-    appState.browser = null,
-        appState.page = null,
-        appState.projects = [],
-        appState.projectsTotal = 0,
-        appState.projectsCompleted = 0,
-        appState.projectsSkipped = 0,
-        appState.projectsFailed = 0,
-        appState.historyList = [],
-        appState.isAborted = false;
+    appState.browser = null;
+    appState.page = null;
+    appState.projects = [];
+    appState.projectsTotal = 0;
+    appState.projectsCompleted = 0;
+    appState.projectsSkipped = 0;
+    appState.projectsFailed = 0;
+    appState.historyList = [];
+    appState.isAborted = false;
 }

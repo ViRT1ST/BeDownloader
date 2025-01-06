@@ -48,7 +48,7 @@ function handleStartClick() {
   isTaskRunning = true;
 
   const urls = urlsInput.value.split('\n')
-    .filter((item) => item.includes('behance.net'))
+    .filter((item) => item.includes('behance.net'));
   
   if (urls.length === 0) {
     infoStatus.innerHTML = 'no Behance URLs in the list';

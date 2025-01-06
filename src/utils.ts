@@ -1,6 +1,6 @@
 import * as stream from 'node:stream';
 import * as path from 'node:path';
-import * as util from 'node:util'
+import * as util from 'node:util';
 import * as fs from 'node:fs';
 
 import { BrowserWindow } from 'electron';
@@ -66,7 +66,7 @@ export async function disableRequestsForMediaFiles(page: Page | null) {
       } else {
         req.continue();
       }
-    })
+    });
   } catch (error: any) {
     console.log(`Failed to disable requests for media files | ${error?.message}`);
   }
@@ -176,7 +176,7 @@ export function convertToLatinizedKebab(string: string) {
 // Correct behance urls if domain is not included and remove url params
 export function makeValidBehanceUrl(url: string) {
   if (!url.includes('behance.net/')) {
-    url = `https://www.behance.net${url}`
+    url = `https://www.behance.net${url}`;
   }
 
   return url.split('?')[0];
@@ -189,7 +189,7 @@ export function formatUrlForUi(url: string, max: number): string {
 
     if (parts.length < 5) {
       return url;
-    };
+    }
 
     let urlFormattedForUi = parts.slice(3).join('/').split('?')[0];
 
@@ -266,7 +266,7 @@ export function generateFilePathForImage(
   let fileName = `${prefix}-${firstOwner}-${title}-${number}.${extension}`;
   fileName = removeMultipleDashes(fileName);
 
-  return path.join(folderPath, fileName)
+  return path.join(folderPath, fileName);
 }
 
 // Download file and save it on disk
@@ -338,7 +338,7 @@ export function writeJsonIntoImageDescription(json: string, filePath: string) {
   try {
     // Read exif data from file
     const fileAsBinaryString = fs.readFileSync(filePath).toString('binary');
-    let exifData: IExif = piexif.load(fileAsBinaryString)
+    let exifData: IExif = piexif.load(fileAsBinaryString);
 
      // Create new fields with project information if there is no exif data at all
     if (Object.keys(exifData).length === 0) {
