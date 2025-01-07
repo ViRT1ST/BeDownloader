@@ -21,7 +21,6 @@ import {
   getInstalledChromeUserProfilePath
 } from './utils.js';
 
-
 /* =============================================================
 Destructed Behance constants
 ============================================================= */

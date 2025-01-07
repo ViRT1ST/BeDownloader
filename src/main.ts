@@ -11,7 +11,6 @@ import { appState } from './states/app.js';
 import { runDownloadTask } from './download.js';
 import { closeBrowser } from './utils.js';
 
-
 /* =============================================================
 First actions on app start
 ============================================================= */
