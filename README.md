@@ -29,7 +29,7 @@ Written with Electron, Puppeteer and other JS libraries.
 ## User options in config.ini file (in settings folder)
 
 > **skipProjectsByHistory**\
-> If set to "true" and you download a project that already exists in history.txt file, it will be skipped.
+> If set to "true" and you download a project that already exists in history.txt file, it will be skipped.\
 > Default is "false".
 
 > **downloadModulesAsGalleries**\
@@ -45,7 +45,7 @@ Written with Electron, Puppeteer and other JS libraries.
 > if set to "true" then your Chrome installed in Windows will be used for scraping data.\
 > if you want use your Chrome with all your settings, cookies and plugins then you can try this.\
 > This for Windows users only and may not work at all (if no Chrome installed or it's version is too old).\
-> Browser must be closed before app run to work.
+> Browser must be closed before app run to work.\
 > Default is "false". 
 
 > **localStorageToken**\
