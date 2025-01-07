@@ -5,7 +5,7 @@ function getExecutablePath() {
     return fs.existsSync(portablePath) ? portablePath : undefined;
 }
 export const puppeteerLaunchConfig = {
-    args: ['--start-maximized'],
+    args: ['--start-maximized', '--disable-gpu'],
     defaultViewport: { width: 1920, height: 1080 },
     executablePath: getExecutablePath()
 };

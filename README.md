@@ -13,7 +13,7 @@ Written with Electron, Puppeteer and other JS libraries.
 * Has ability to skip downloading a project if its URL is found in history.
 * Portable app, don't need installation.
 
-## Usage as portable app (for Windows users only)
+## Usage as portable app (for Windows users)
 
 * Download portable app and run it
 
