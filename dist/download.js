@@ -79,9 +79,6 @@ async function auth() {
                 return;
             }
         }, tokenKey, tokenValue);
-        // Reload main page
-        await page.goto(mainPageUrl, pageWaitOptions);
-        await wait(3000);
     }
     catch (error) {
         return;
@@ -104,7 +101,7 @@ async function scrollToBottom() {
                 // Delay
                 await new Promise((resolve) => setTimeout(resolve, delayBetweenScrolls));
                 // Exit if scroll has reached the bottom
-                if (scrollTop + clientHeight >= scrollHeight) {
+                if (scrollTop + clientHeight >= scrollHeight - 1) {
                     break;
                 }
             }
