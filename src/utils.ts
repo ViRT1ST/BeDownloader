@@ -2,6 +2,7 @@ import * as stream from 'node:stream';
 import * as path from 'node:path';
 import * as util from 'node:util';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 
 import { BrowserWindow } from 'electron';
 import { Browser, Page } from 'puppeteer';
@@ -141,8 +142,8 @@ String formating utils
 ============================================================= */
 
 // Get new line symbol for Windows
-function getBreakLine() {
-  return '\r\n';
+function getNewLineSymbol() {
+  return os.EOL;
 }
 
 // Format number to string with two digits
@@ -228,7 +229,7 @@ export function readTextFileToArray(fileName: string) {
 
   try {
     const fileContent = fs.readFileSync(fileName, 'utf-8');
-    linesArray = fileContent.trim().split(getBreakLine());
+    linesArray = fileContent.trim().split(getNewLineSymbol());
 
   } catch (error: any) {
     console.log(`Error reading text file to array | ${error?.message}`);
@@ -240,7 +241,7 @@ export function readTextFileToArray(fileName: string) {
 // Write array to text file
 export function writeArrayToTextFile(fileName: string, array: any[]) {
   try {
-    const lines = array.join(getBreakLine()).trim();
+    const lines = array.join(getNewLineSymbol()).trim();
     fs.writeFileSync(fileName, lines);
 
   } catch (error: any) {

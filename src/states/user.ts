@@ -5,16 +5,12 @@ import * as ini from 'ini';
 import { createDirectoryIfNotExists, createFileIfNotExists } from '../utils.js';
 import { UserState } from '../types.js';
 
-const platform = process.platform.toString();
-
 /* =============================================================
 User state
 ============================================================= */
 
 export const userState: UserState = {
-  isLinux: platform === 'linux',
-  isMac: platform === 'darwin',
-  isWin: platform === 'win32',
+  isMac: process.platform.toString() === 'darwin',
   settingsFolder: path.join(process.cwd(), 'settings'),
   configFile: path.join(process.cwd(), 'settings', 'config.ini'),
   historyFile: path.join(process.cwd(), 'settings', 'history.txt'),
@@ -70,24 +66,29 @@ export function loadUserSettingsFromFile() {
     }
 
   } catch (error: any) {
-    console.log(error.message);
+    console.log(`Error loading user settings | ${error?.message}`);
   }
 }
 
 // Saving user-modifiable fields to config file
 export function saveUserSettingsToFile() {
-  createDirectoryIfNotExists(userState.settingsFolder);
+  try {
+    createDirectoryIfNotExists(userState.settingsFolder);
 
-  const configToSave = {
-    downloadFolder: userState.downloadFolder,
-    skipProjectsByHistory: userState.skipProjectsByHistory,
-    downloadModulesAsGalleries: userState.downloadModulesAsGalleries,
-    showBrowser: userState.showBrowser,
-    localStorageToken: userState.localStorageToken
-  };
+    const configToSave = {
+      downloadFolder: userState.downloadFolder,
+      skipProjectsByHistory: userState.skipProjectsByHistory,
+      downloadModulesAsGalleries: userState.downloadModulesAsGalleries,
+      showBrowser: userState.showBrowser,
+      localStorageToken: userState.localStorageToken
+    };
+  
+    const stringsToSave = ini.stringify(configToSave, { section: 'main' });
+    fs.writeFileSync(userState.configFile, stringsToSave);
 
-  const stringsToSave = ini.stringify(configToSave, { section: 'main' });
-  fs.writeFileSync(userState.configFile, stringsToSave);
+  } catch (error: any) {
+    console.log(`Error saving user settings | ${error?.message}`);
+  }
 }
 
 // Create user files if they don't exist

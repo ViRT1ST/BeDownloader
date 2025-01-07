@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 
 export const electronSettings = {
-  title: 'BeDownloader 2.1.1',
+  title: 'BeDownloader 2.2.0',
   width: 800,
   height: 600,
   icon: path.join(process.cwd(), 'dist', 'static', 'icons', 'Icon_128x128.png'),
@@ -12,3 +12,5 @@ export const electronSettings = {
     nodeIntegration: true,
   }
 };
+
+export const pathToIndexHtml = path.join(process.cwd(), 'dist', 'static', 'index.html');

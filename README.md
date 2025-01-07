@@ -13,17 +13,17 @@ Written with Electron, Puppeteer and other JS libraries.
 * Has ability to skip downloading a project if its URL is found in history.
 * Portable app, don't need installation.
 
-## Usage as portable app (currently for Windows users only)
+## Usage as portable app (for Windows users only)
 
 * Download portable app and run it
 
-## Usage as Node.js project (currently for Windows users only)
+## Usage as Node.js project (for Windows, Linux and MacOS users)
 
 ```
 1. Download and install Node.js v20.9.0 or newer.
 2. Download repository archive and unpack it.
-3. Go to the root of unpacked folder and run 'npm install' in terminal to install all dependencies.
-4. Run 'npm run dev' in terminal to start app.
+3. Go to unpacked folder and run "npm install" in terminal to install all project's dependencies.
+4. Run "npm run dev" in terminal to start app.
 ```
 
 ## Skipping projects by download history

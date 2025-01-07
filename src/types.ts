@@ -15,9 +15,7 @@ export type AppState = {
 };
 
 export type UserState = {
-  isLinux: boolean;
   isMac: boolean;
-  isWin: boolean;
   settingsFolder: string;
   configFile: string;
   historyFile: string;

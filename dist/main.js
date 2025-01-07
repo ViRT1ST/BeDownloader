@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import { userState, createUserFilesIfTheyDontExist, loadUserSettingsFromFile, saveUserSettingsToFile } from './states/user.js';
-import { electronSettings } from './configs/electron.js';
+import { electronSettings, pathToIndexHtml } from './configs/electron.js';
 import { appState } from './states/app.js';
 import { runDownloadTask } from './download.js';
 import { closeBrowser } from './utils.js';
@@ -9,13 +9,13 @@ First actions on app start
 ============================================================= */
 createUserFilesIfTheyDontExist();
 loadUserSettingsFromFile();
+saveUserSettingsToFile();
 /* =============================================================
 Electron | Create window
 ============================================================= */
 function createElectronWindow() {
     appState.electronWindow = new BrowserWindow(electronSettings);
-    // appState.electronWindow.loadFile('./static/index.html');
-    appState.electronWindow.loadFile(`${process.cwd()}/dist/static/index.html`);
+    appState.electronWindow.loadFile(pathToIndexHtml);
     appState.electronWindow.on('closed', () => { appState.electronWindow = null; });
 }
 /* =============================================================
@@ -28,7 +28,6 @@ app.on('ready', () => {
 // Invokes when app is closing
 app.on('window-all-closed', () => {
     if (!userState.isMac) {
-        saveUserSettingsToFile();
         app.quit();
     }
 });
@@ -73,6 +72,7 @@ ipcMain.on('open-select-directory-dialog', async (event) => {
         return;
     }
     userState.downloadFolder = filePaths[0];
+    saveUserSettingsToFile();
     electronWindow.webContents.send('update-destination-folder', {
         path: userState.downloadFolder
     });

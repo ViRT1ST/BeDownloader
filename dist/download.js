@@ -164,6 +164,7 @@ async function collectProjectsUrlsFromPage(url) {
                     if (element.tagName === 'DIV' && parent.tagName !== 'ARTICLE') {
                         projectLink.projectVariant = 'image';
                     }
+                    // if forced download modules as galleries
                     if (downloadModulesAsGalleries) {
                         projectLink.projectVariant = 'gallery';
                     }
@@ -198,11 +199,12 @@ export async function generateProjectsList(urls) {
             });
         }
         else {
+            // Collect projects from moodbard/profile/likes page
             let projects = await collectProjectsUrlsFromPage(url);
             if (!projects) {
                 appState.projectsFailed += 1;
-                console.log('collectProjectsUrlsFromPage(): failed');
-                console.log('collectProjectsUrlsFromPage():', projects);
+                // console.log('collectProjectsUrlsFromPage(): failed');
+                // console.log('collectProjectsUrlsFromPage():', projects);
             }
             else {
                 projects = projects.map((item) => {
@@ -336,8 +338,9 @@ export async function downloadProjects() {
         if (!projectData) {
             appState.projectsFailed += 1;
             updateCompletedInfo();
-            console.log('gotoProjectPageAndCollectData(): failed');
-            console.log('gotoProjectPageAndCollectData():', projectData);
+            console.log('gotoProjectPageAndCollectData(): Failed (projectData is undefined)');
+            console.log('gotoProjectPageAndCollectData(): This can happen if project is for adults');
+            console.log('gotoProjectPageAndCollectData(): Use your Behance token and try again');
             continue;
         }
         // Update project data with only project images (filter out other images)

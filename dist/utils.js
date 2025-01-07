@@ -2,6 +2,7 @@ import * as stream from 'node:stream';
 import * as path from 'node:path';
 import * as util from 'node:util';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import { transliterate } from 'transliteration';
 import piexif, { TagValues } from 'piexif-ts';
 import fetch from 'node-fetch';
@@ -115,8 +116,8 @@ export function getProjectImagesFromParsedImages(parsedImages) {
 String formating utils
 ============================================================= */
 // Get new line symbol for Windows
-function getBreakLine() {
-    return '\r\n';
+function getNewLineSymbol() {
+    return os.EOL;
 }
 // Format number to string with two digits
 export function addZeroForNumberLessTen(number) {
@@ -185,7 +186,7 @@ export function readTextFileToArray(fileName) {
     let linesArray = [];
     try {
         const fileContent = fs.readFileSync(fileName, 'utf-8');
-        linesArray = fileContent.trim().split(getBreakLine());
+        linesArray = fileContent.trim().split(getNewLineSymbol());
     }
     catch (error) {
         console.log(`Error reading text file to array | ${error?.message}`);
@@ -195,7 +196,7 @@ export function readTextFileToArray(fileName) {
 // Write array to text file
 export function writeArrayToTextFile(fileName, array) {
     try {
-        const lines = array.join(getBreakLine()).trim();
+        const lines = array.join(getNewLineSymbol()).trim();
         fs.writeFileSync(fileName, lines);
     }
     catch (error) {
@@ -300,9 +301,6 @@ export function writeJsonIntoImageDescription(json, filePath) {
 // Download image and save it to destination folder
 export async function downloadImage(projectData, imageUrl, imageFilePath) {
     try {
-        // Left for debbuging
-        console.log('downloadImage(): Image URL:', imageUrl);
-        console.log('downloadImage(): Expected image save path:', imageFilePath);
         // Create temp file path 
         const tempFileExt = path.parse(imageFilePath).ext;
         const tempFilePath = path.join(path.dirname(imageFilePath), `temp-image${tempFileExt}`);
@@ -344,7 +342,6 @@ export async function downloadImage(projectData, imageUrl, imageFilePath) {
             const nextDigit = addZeroForNumberLessTen(lastDigit + 1);
             const newFileName = `${existFilePatternStr}-${nextDigit}${ext}`;
             const newFilePath = path.join(path.dirname(imageFilePath), newFileName);
-            console.log('downloadImage(): New (non-expected) image save path:', newFilePath);
             fs.renameSync(tempFilePath, newFilePath);
         }
     }
