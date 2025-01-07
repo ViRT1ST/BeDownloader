@@ -1,7 +1,7 @@
-import puppeteer from 'puppeteer';
+import puppeteer, { LaunchOptions } from 'puppeteer';
 
 import { userState } from './states/user.js';
-import { puppeteerLaunchConfig, behanceConstants } from './configs/puppeteer.js';
+import { puppeteerLaunchOptions, behanceConstants } from './configs/puppeteer.js';
 import { appState, resetPuppeteerDataInState } from './states/app.js';
 import { ProjectLink } from './types.js';
 import {
@@ -17,7 +17,10 @@ import {
   createDirectoryIfNotExists,
   disableRequestsForMediaFiles,
   addProjectUrlToHistoryFile,
+  getInstalledChromeExecutablePath,
+  getInstalledChromeUserProfilePath
 } from './utils.js';
+
 
 /* =============================================================
 Destructed Behance constants
@@ -39,15 +42,28 @@ Create and launch browser
 ============================================================= */
 
 export async function launchBrowser() {
-  const options = {
-    ...puppeteerLaunchConfig,
-    headless: !userState.showBrowser,
-  };
+  const options: LaunchOptions = { ...puppeteerLaunchOptions };
+
+  if (userState.showBrowser) {
+    options.headless = false;
+  }
+
+  // Windows only and if user wants to use system installed Chrome
+  const useInstalledChrome = userState.useSystemInstalledChrome;
+  const winChromeExePath = getInstalledChromeExecutablePath();
+  const winChromeProfilePath = getInstalledChromeUserProfilePath();
+  if (useInstalledChrome && winChromeExePath && winChromeProfilePath) {
+    options.executablePath = winChromeExePath;
+    options.userDataDir = winChromeProfilePath;
+  }
 
   appState.browser = await puppeteer.launch(options);
   appState.page = await appState.browser.newPage();
-}
 
+  await appState.page.setExtraHTTPHeaders({
+    'Accept-Language': 'en-US,en;q=0.9'
+  });
+}
 
 /* =============================================================
 Electron update UI actions
@@ -418,7 +434,7 @@ async function taskEnding() {
 }
 
 export async function downloadProjects() {
-  const { downloadFolder, downloadModulesAsGalleries } = userState;
+  const { downloadFolder } = userState;
   const ew = appState.electronWindow;
 
   if (!ew) {

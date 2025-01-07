@@ -1,8 +1,8 @@
 import puppeteer from 'puppeteer';
 import { userState } from './states/user.js';
-import { puppeteerLaunchConfig, behanceConstants } from './configs/puppeteer.js';
+import { puppeteerLaunchOptions, behanceConstants } from './configs/puppeteer.js';
 import { appState, resetPuppeteerDataInState } from './states/app.js';
-import { wait, sendToRenderer, formatUrlForUi, makeValidBehanceUrl, getProjectImagesFromParsedImages, readTextFileToArray, closeBrowser, generateFilePathForImage, downloadImage, createDirectoryIfNotExists, disableRequestsForMediaFiles, addProjectUrlToHistoryFile, } from './utils.js';
+import { wait, sendToRenderer, formatUrlForUi, makeValidBehanceUrl, getProjectImagesFromParsedImages, readTextFileToArray, closeBrowser, generateFilePathForImage, downloadImage, createDirectoryIfNotExists, disableRequestsForMediaFiles, addProjectUrlToHistoryFile, getInstalledChromeExecutablePath, getInstalledChromeUserProfilePath } from './utils.js';
 /* =============================================================
 Destructed Behance constants
 ============================================================= */
@@ -11,12 +11,23 @@ const { mainPageUrl, pageWaitOptions, pageSelectorToWait, pageTimeToWait, gridSe
 Create and launch browser
 ============================================================= */
 export async function launchBrowser() {
-    const options = {
-        ...puppeteerLaunchConfig,
-        headless: !userState.showBrowser,
-    };
+    const options = { ...puppeteerLaunchOptions };
+    if (userState.showBrowser) {
+        options.headless = false;
+    }
+    // Windows only and if user wants to use system installed Chrome
+    const useInstalledChrome = userState.useSystemInstalledChrome;
+    const winChromeExePath = getInstalledChromeExecutablePath();
+    const winChromeProfilePath = getInstalledChromeUserProfilePath();
+    if (useInstalledChrome && winChromeExePath && winChromeProfilePath) {
+        options.executablePath = winChromeExePath;
+        options.userDataDir = winChromeProfilePath;
+    }
     appState.browser = await puppeteer.launch(options);
     appState.page = await appState.browser.newPage();
+    await appState.page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US,en;q=0.9'
+    });
 }
 /* =============================================================
 Electron update UI actions
@@ -325,7 +336,7 @@ async function taskEnding() {
     await closeBrowser(appState.browser);
 }
 export async function downloadProjects() {
-    const { downloadFolder, downloadModulesAsGalleries } = userState;
+    const { downloadFolder } = userState;
     const ew = appState.electronWindow;
     if (!ew) {
         return;

@@ -4,10 +4,11 @@ function getExecutablePath() {
     const portablePath = path.join(process.cwd(), '[chrome-win64-131.0.6778.204]', 'chrome.exe');
     return fs.existsSync(portablePath) ? portablePath : undefined;
 }
-export const puppeteerLaunchConfig = {
+export const puppeteerLaunchOptions = {
     args: ['--start-maximized', '--disable-gpu'],
     defaultViewport: { width: 1920, height: 1080 },
-    executablePath: getExecutablePath()
+    executablePath: getExecutablePath(),
+    headless: true,
 };
 export const behanceConstants = {
     mainPageUrl: 'https://www.behance.net/',

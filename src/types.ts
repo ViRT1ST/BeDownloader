@@ -15,6 +15,8 @@ export type AppState = {
 };
 
 export type UserState = {
+  isWindows: boolean;
+  isLinux: boolean;
   isMac: boolean;
   settingsFolder: string;
   configFile: string;
@@ -23,6 +25,7 @@ export type UserState = {
   skipProjectsByHistory: boolean;
   downloadModulesAsGalleries: boolean;
   showBrowser: boolean;
+  useSystemInstalledChrome: boolean;
   localStorageToken: string;
 };
 

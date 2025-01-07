@@ -5,8 +5,11 @@ import { createDirectoryIfNotExists, createFileIfNotExists } from '../utils.js';
 /* =============================================================
 User state
 ============================================================= */
+const platform = process.platform.toString();
 export const userState = {
-    isMac: process.platform.toString() === 'darwin',
+    isWindows: platform === 'win32',
+    isLinux: platform === 'linux',
+    isMac: platform === 'darwin',
     settingsFolder: path.join(process.cwd(), 'settings'),
     configFile: path.join(process.cwd(), 'settings', 'config.ini'),
     historyFile: path.join(process.cwd(), 'settings', 'history.txt'),
@@ -14,6 +17,7 @@ export const userState = {
     skipProjectsByHistory: false,
     downloadModulesAsGalleries: false,
     showBrowser: false,
+    useSystemInstalledChrome: false,
     localStorageToken: 'none',
 };
 /* =============================================================
@@ -46,6 +50,9 @@ export function loadUserSettingsFromFile() {
         if (typeof mainSection.showBrowser === 'boolean') {
             userState.showBrowser = mainSection.showBrowser;
         }
+        if (typeof mainSection.useSystemInstalledChrome === 'boolean') {
+            userState.useSystemInstalledChrome = mainSection.useSystemInstalledChrome;
+        }
         if (typeof mainSection.localStorageToken === 'string') {
             userState.localStorageToken = mainSection.localStorageToken;
         }
@@ -63,6 +70,7 @@ export function saveUserSettingsToFile() {
             skipProjectsByHistory: userState.skipProjectsByHistory,
             downloadModulesAsGalleries: userState.downloadModulesAsGalleries,
             showBrowser: userState.showBrowser,
+            useSystemInstalledChrome: userState.useSystemInstalledChrome,
             localStorageToken: userState.localStorageToken
         };
         const stringsToSave = ini.stringify(configToSave, { section: 'main' });

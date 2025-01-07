@@ -18,6 +18,16 @@ export function sendToRenderer(electronWindow, channel, data) {
 /* =============================================================
 Puppeteer utils
 ============================================================= */
+// Get path of installed Chrome executable (only for Windows)
+export function getInstalledChromeExecutablePath() {
+    const path = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+    return fs.existsSync(path) ? path : null;
+}
+// Get path of installed Chrome user profile (only for Windows)
+export function getInstalledChromeUserProfilePath() {
+    const path = `C:\\Users\\${os.userInfo().username}\\AppData\\Local\\Google\\Chrome\\User Data`;
+    return fs.existsSync(path) ? path : null;
+}
 // Kill browser process (causing errors in console)
 export async function killPuppeteer(browser) {
     try {

@@ -13,7 +13,7 @@ Written with Electron, Puppeteer and other JS libraries.
 * Has ability to skip downloading a project if its URL is found in history.
 * Portable app, don't need installation.
 
-## Usage as portable app (for Windows users)
+## Usage as portable app (for Windows users only)
 
 * Download portable app and run it
 
@@ -26,9 +26,32 @@ Written with Electron, Puppeteer and other JS libraries.
 4. Run "npm run dev" in terminal to start app.
 ```
 
-## Skipping projects by download history
+## User options in config.ini file (in settings folder)
 
-Can be enabled in "settings\\config.ini" (false by default).
+> **skipProjectsByHistory**\
+> If set to "true" and you download a project that already exists in history.txt file, it will be skipped.
+> Default is "false".
+
+> **downloadModulesAsGalleries**\
+> If set to "true", all individual images saved in moodboards will be loaded as a full project with all images.\
+> Default is "false".
+
+> **showBrowser**\
+> If set to "true", version of Chrome included with the app will be visible.\
+> Chrome is used in app for scraping information from projects on Behance site.\
+> Default is "false". Not recommended to use "true" (can cause issues with scraping data).
+
+> **useSystemInstalledChrome**\
+> if set to "true" then your Chrome installed in Windows will be used for scraping data.\
+> if you want use your Chrome with all your settings, cookies and plugins then you can try this.\
+> This for Windows users only and may not work at all (if no Chrome installed or it's version is too old).\
+> Browser must be closed before app run to work.
+> Default is "false". 
+
+> **localStorageToken**\
+> Required for downloading adult projects.\
+> Or you can use "useSystemInstalledChrome" option and use your Chrome where you are authorized in Behance.\
+> Default is "none". 
 
 ## Issues with downloading adult NSFW projects
 
