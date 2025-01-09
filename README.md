@@ -49,7 +49,7 @@ Written with Electron, Puppeteer and other JS libraries.
 > Default is "false". 
 
 > **turboMode**\
-> Alternate mode for navigating beetween pages.\
+> Alternate mode for navigating between pages.\
 > if set to "true" it will use option "timeoutBetweenPagesInTurboMode" for timeouts.\
 > This can work better for people with old hardware.\
 > Default is "false".
@@ -57,7 +57,7 @@ Written with Electron, Puppeteer and other JS libraries.
 > **timeoutBetweenPagesInTurboMode**\
 > Number in milliseconds.\
 > "5000" will be ok for fast connections and fast computers.\
-> On slower connections or with old computers maybe need to increase to "20000" or higher.\
+> On slow connections or with old computers maybe need to increase to "20000" or higher.\
 > Default is "10000" (10 seconds).
 
 > **localStorageToken**\
