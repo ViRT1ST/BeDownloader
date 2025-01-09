@@ -2,11 +2,11 @@ import puppeteer from 'puppeteer';
 import { userState } from './states/user.js';
 import { puppeteerLaunchOptions, behanceConstants } from './configs/puppeteer.js';
 import { appState, resetPuppeteerDataInState } from './states/app.js';
-import { wait, sendToRenderer, formatUrlForUi, makeValidBehanceUrl, getProjectImagesFromParsedImages, readTextFileToArray, closeBrowser, generateFilePathForImage, downloadImage, createDirectoryIfNotExists, disableRequestsForMediaFiles, addProjectUrlToHistoryFile, getInstalledChromeExecutablePath, getInstalledChromeUserProfilePath } from './utils.js';
+import { wait, sendToRenderer, formatUrlForUi, makeValidBehanceUrl, getProjectImagesFromParsedImages, readTextFileToArray, navigateToUrl, closeBrowser, generateFilePathForImage, downloadImage, createDirectoryIfNotExists, disableRequestsForMediaFiles, addProjectUrlToHistoryFile, getInstalledChromeExecutablePath, getInstalledChromeUserProfilePath } from './utils.js';
 /* =============================================================
 Destructed Behance constants
 ============================================================= */
-const { mainPageUrl, pageWaitOptions, pageSelectorToWait, pageTimeToWait, gridSelectors, projectSelectors, betweenImagesDelay, authLocalStorageKey } = behanceConstants;
+const { mainPageUrl, betweenPagesDelayDefault, gridSelectors, projectSelectors, betweenImagesDelay, authLocalStorageKey } = behanceConstants;
 /* =============================================================
 Create and launch browser
 ============================================================= */
@@ -58,6 +58,7 @@ Puppeteer actions
 ============================================================= */
 // Authenticate if user has token in config file
 async function auth() {
+    const { turboMode, timeoutBetweenPagesInTurboMode } = userState;
     const ew = appState.electronWindow;
     const page = appState.page;
     const tokenKey = authLocalStorageKey;
@@ -66,12 +67,13 @@ async function auth() {
         return;
     }
     try {
+        const timeout = turboMode ? timeoutBetweenPagesInTurboMode : betweenPagesDelayDefault;
+        // Go to main page
         updateStatusInfo('loading Behance main page...');
-        await page.goto(mainPageUrl, pageWaitOptions);
-        await page.waitForSelector(pageSelectorToWait, pageTimeToWait);
-        await wait(3000);
+        await navigateToUrl(page, mainPageUrl, userState, behanceConstants);
+        // Use user token
         updateStatusInfo('authenticating by user token...');
-        await page.evaluate((tokenKey, tokenValue) => {
+        await page.evaluate(async (tokenKey, tokenValue) => {
             try {
                 localStorage.setItem(tokenKey, tokenValue);
             }
@@ -79,6 +81,19 @@ async function auth() {
                 return;
             }
         }, tokenKey, tokenValue);
+        await wait(timeout);
+        // Reload main page
+        updateStatusInfo('reloading page after authenticating...');
+        await page.evaluate(async () => {
+            try {
+                // localStorage.setItem(tokenKey, tokenValue);
+                location.reload();
+            }
+            catch (error) {
+                return;
+            }
+        }, tokenKey, tokenValue);
+        await wait(timeout);
     }
     catch (error) {
         return;
@@ -94,15 +109,19 @@ async function scrollToBottom() {
         try {
             const scrollStep = 500;
             const delayBetweenScrolls = 500;
+            let reachedBottomTimes = 0;
             while (true) {
                 const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
                 // Scroll down
                 window.scrollBy(0, scrollStep);
                 // Delay
                 await new Promise((resolve) => setTimeout(resolve, delayBetweenScrolls));
-                // Exit if scroll has reached the bottom
+                // Exit if scroll has reached the bottom 3 times
                 if (scrollTop + clientHeight >= scrollHeight - 1) {
-                    break;
+                    reachedBottomTimes += 1;
+                    if (reachedBottomTimes >= 3) {
+                        break;
+                    }
                 }
             }
         }
@@ -113,18 +132,16 @@ async function scrollToBottom() {
 }
 // Get projects urls from moodboard/profiles/likes pages
 async function collectProjectsUrlsFromPage(url) {
-    const { downloadModulesAsGalleries } = userState;
+    const { downloadModulesAsGalleries, turboMode, timeoutBetweenPagesInTurboMode } = userState;
     const ew = appState.electronWindow;
     const page = appState.page;
     if (!ew || !page) {
         return;
     }
     try {
-        const shortPageUrl = `[${formatUrlForUi(url, 45)}]`;
-        // Waiting page to load
-        updateStatusInfo(`loading page ${shortPageUrl} ...`);
-        await page.goto(url, pageWaitOptions);
-        await page.waitForSelector(pageSelectorToWait, pageTimeToWait);
+        // Go to page
+        updateStatusInfo(`loading page [${formatUrlForUi(url, 45)}] ...`);
+        await navigateToUrl(page, url, userState, behanceConstants);
         // Scrolling
         updateStatusInfo(`scrolling page to get all projects (can take some time)...`);
         await scrollToBottom();
@@ -192,7 +209,7 @@ async function collectProjectsUrlsFromPage(url) {
 }
 // Collect projects only URLs from all URLs pasted by user in input form
 export async function generateProjectsList(urls) {
-    const { skipProjectsByHistory, downloadModulesAsGalleries } = userState;
+    const { skipProjectsByHistory } = userState;
     const ew = appState.electronWindow;
     if (!ew) {
         return;
@@ -257,9 +274,10 @@ async function gotoProjectPageAndCollectData(projectLink) {
         return;
     }
     try {
+        // Go to project page
         updateStatusInfo(`loading project page [${id}] to collect its data and images...`);
-        await page.goto(projectLink.projectUrl, pageWaitOptions);
-        await wait(3000);
+        await navigateToUrl(page, projectLink.projectUrl, userState, behanceConstants);
+        // Collect project data
         return page.evaluate(async (id, projectLink) => {
             try {
                 const { projectVariant, projectUrl, projectImage } = projectLink;

@@ -33,7 +33,7 @@ Written with Electron, Puppeteer and other JS libraries.
 > Default is "false".
 
 > **downloadModulesAsGalleries**\
-> If set to "true", all individual images saved in moodboards will be loaded as a full project with all images.\
+> If set to "true", all individual images saved in moodboards will be downloaded as a full project with all images.\
 > Default is "false".
 
 > **showBrowser**\
@@ -48,10 +48,24 @@ Written with Electron, Puppeteer and other JS libraries.
 > Browser must be closed before app run to work.\
 > Default is "false". 
 
+> **turboMode**\
+> Alternate mode for navigating beetween pages.\
+> if set to "true" it will use option "timeoutBetweenPagesInTurboMode" for timeouts.\
+> This can work better for people with old hardware.\
+> Default is "false".
+
+> **timeoutBetweenPagesInTurboMode**\
+> Number in milliseconds.\
+> "5000" will be ok for fast connections and fast computers.\
+> On slower connections or with old computers maybe need to increase to "20000" or higher.\
+> Default is "10000" (10 seconds).
+
 > **localStorageToken**\
 > Required for downloading adult projects.\
 > Or you can use "useSystemInstalledChrome" option and use your Chrome where you are authorized in Behance.\
 > Default is "none". 
+
+
 
 ## Issues with downloading adult NSFW projects
 

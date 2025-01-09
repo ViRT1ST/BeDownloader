@@ -18,6 +18,8 @@ export const userState = {
     downloadModulesAsGalleries: false,
     showBrowser: false,
     useSystemInstalledChrome: false,
+    turboMode: false,
+    timeoutBetweenPagesInTurboMode: 10000,
     localStorageToken: 'none',
 };
 /* =============================================================
@@ -53,6 +55,15 @@ export function loadUserSettingsFromFile() {
         if (typeof mainSection.useSystemInstalledChrome === 'boolean') {
             userState.useSystemInstalledChrome = mainSection.useSystemInstalledChrome;
         }
+        if (typeof mainSection.turboMode === 'boolean') {
+            userState.turboMode = mainSection.turboMode;
+        }
+        if (typeof mainSection.timeoutBetweenPagesInTurboMode === 'string') {
+            const timeoutNumber = parseInt(mainSection.timeoutBetweenPagesInTurboMode, 10);
+            if (!Number.isNaN(timeoutNumber) && timeoutNumber > 0) {
+                userState.timeoutBetweenPagesInTurboMode = mainSection.timeoutBetweenPagesInTurboMode;
+            }
+        }
         if (typeof mainSection.localStorageToken === 'string') {
             userState.localStorageToken = mainSection.localStorageToken;
         }
@@ -71,6 +82,8 @@ export function saveUserSettingsToFile() {
             downloadModulesAsGalleries: userState.downloadModulesAsGalleries,
             showBrowser: userState.showBrowser,
             useSystemInstalledChrome: userState.useSystemInstalledChrome,
+            turboMode: userState.turboMode,
+            timeoutBetweenPagesInTurboMode: userState.timeoutBetweenPagesInTurboMode,
             localStorageToken: userState.localStorageToken
         };
         const stringsToSave = ini.stringify(configToSave, { section: 'main' });

@@ -16,7 +16,7 @@ module.exports = {
     'import/no-anonymous-default-export': 'off',
     'no-constant-condition': 'off',
     'no-inner-declarations': 'off',
-    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'on',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-expressions': 'off'
   },

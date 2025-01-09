@@ -17,8 +17,10 @@ export const puppeteerLaunchOptions = {
 export const behanceConstants = {
   mainPageUrl: 'https://www.behance.net/',
   pageSelectorToWait: '.SearchTypeahead-searchInput-BMV',
-  pageTimeToWait: { timeout: 60000 },
-  pageWaitOptions: { waitUntil: 'networkidle0', timeout: 0 } as WaitForOptions,
+  pageSelectorTimeout: { timeout: 30000 },
+  pageWaitOptionsDefault: { waitUntil: 'networkidle0', timeout: 0 } as WaitForOptions,
+  pageWaitOptionsTurbo: { waitUntil: 'domcontentloaded', timeout: 0 } as WaitForOptions,
+  betweenPagesDelayDefault: 3000,
   betweenImagesDelay: 500,
   // Projects wrapper selectors
   gridSelectors: [

@@ -79,6 +79,21 @@ export async function disableRequestsForMediaFiles(page) {
         console.log(`Failed to disable requests for media files | ${error?.message}`);
     }
 }
+export async function navigateToUrl(page, url, userState, behanceConstants) {
+    if (page) {
+        const { turboMode, timeoutBetweenPagesInTurboMode } = userState;
+        const { pageWaitOptionsTurbo, pageWaitOptionsDefault, pageSelectorToWait, pageSelectorTimeout, betweenPagesDelayDefault } = behanceConstants;
+        if (turboMode) {
+            await page.goto(url, pageWaitOptionsTurbo);
+            await wait(timeoutBetweenPagesInTurboMode);
+        }
+        else {
+            await page.goto(url, pageWaitOptionsDefault);
+            await page.waitForSelector(pageSelectorToWait, pageSelectorTimeout);
+            await wait(betweenPagesDelayDefault);
+        }
+    }
+}
 /* =============================================================
 Promises utils
 ============================================================= */
@@ -114,13 +129,13 @@ export function getProjectImagesFromParsedImages(parsedImages) {
         if (typeof url !== 'string') {
             return false;
         }
-        const jpegOrPng = /\.jpe?g|png$/i.test(url);
+        const jpegOrPngOrGif = /\.jpe?g|png|gif$/i.test(url);
         const notBadUrl = !badUrls.some((item) => url.includes(item));
         const notBase64 = !/base64/i.test(url);
         const projectModule = /\/project_modules\//i.test(url);
         const externalImage = !/behance\.net/i.test(url);
         const goodSource = (projectModule || externalImage);
-        return jpegOrPng && notBadUrl && notBase64 && goodSource;
+        return jpegOrPngOrGif && notBadUrl && notBase64 && goodSource;
     }
     const projectImages = parsedImages
         .filter(checkImageUrl)

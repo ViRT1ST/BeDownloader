@@ -1,5 +1,6 @@
 import { BrowserWindow } from 'electron';
 import { Browser, Page } from 'puppeteer';
+import { WaitForOptions } from 'puppeteer';
 
 export type AppState = {
   electronWindow: BrowserWindow | null;
@@ -26,6 +27,8 @@ export type UserState = {
   downloadModulesAsGalleries: boolean;
   showBrowser: boolean;
   useSystemInstalledChrome: boolean;
+  turboMode: boolean;
+  timeoutBetweenPagesInTurboMode: number;
   localStorageToken: string;
 };
 
@@ -49,3 +52,17 @@ export type ProjectData = {
   projectId: string;
   projectImages: string[];
 };
+
+export type BehanceConstants = {
+  mainPageUrl: string
+  pageSelectorToWait: string;
+  pageSelectorTimeout: { timeout: number };
+  pageWaitOptionsDefault: WaitForOptions,
+  pageWaitOptionsTurbo: WaitForOptions,
+  betweenPagesDelayDefault: number;
+  betweenImagesDelay: number;
+  gridSelectors: string[];
+  projectSelectors: string[];
+  authLocalStorageKey: string;
+};
+

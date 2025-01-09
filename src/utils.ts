@@ -5,12 +5,13 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 
 import { BrowserWindow } from 'electron';
-import { Browser, Page } from 'puppeteer';
+import { Browser, Page, WaitForOptions } from 'puppeteer';
 import { transliterate } from 'transliteration';
 import piexif, { TagValues, IExifElement, IExif } from 'piexif-ts';
 import fetch from 'node-fetch';
 
-import type { ProjectData } from './types.js';
+import type { ProjectData, UserState, BehanceConstants } from './types.js';
+import { behanceConstants } from './configs/puppeteer.js';
 
 /* =============================================================
 Electron utils
@@ -95,6 +96,37 @@ export async function disableRequestsForMediaFiles(page: Page | null) {
   }
 }
 
+export async function navigateToUrl(
+  page: Page,
+  url: string,
+  userState: UserState,
+  behanceConstants: BehanceConstants
+) {
+  if (page) {
+    const {
+      turboMode,
+      timeoutBetweenPagesInTurboMode
+    } = userState;
+
+    const {
+      pageWaitOptionsTurbo,
+      pageWaitOptionsDefault,
+      pageSelectorToWait,
+      pageSelectorTimeout,
+      betweenPagesDelayDefault
+    } = behanceConstants;
+
+    if (turboMode) {
+      await page.goto(url, pageWaitOptionsTurbo);
+      await wait(timeoutBetweenPagesInTurboMode);
+    } else {
+      await page.goto(url, pageWaitOptionsDefault);
+      await page.waitForSelector(pageSelectorToWait, pageSelectorTimeout);
+      await wait(betweenPagesDelayDefault);
+    }
+  }
+}
+
 /* =============================================================
 Promises utils
 ============================================================= */
@@ -138,14 +170,14 @@ export function getProjectImagesFromParsedImages(parsedImages: string[]) {
       return false;
     }
   
-    const jpegOrPng = /\.jpe?g|png$/i.test(url);
+    const jpegOrPngOrGif = /\.jpe?g|png|gif$/i.test(url);
     const notBadUrl = !badUrls.some((item) => url.includes(item));
     const notBase64 = !/base64/i.test(url);
     const projectModule = /\/project_modules\//i.test(url);
     const externalImage = !/behance\.net/i.test(url);
     const goodSource = (projectModule || externalImage);
   
-    return jpegOrPng && notBadUrl && notBase64 && goodSource;
+    return jpegOrPngOrGif && notBadUrl && notBase64 && goodSource;
   }
 
   const projectImages = parsedImages
