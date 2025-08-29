@@ -5,13 +5,12 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 
 import { BrowserWindow } from 'electron';
-import { Browser, Page, WaitForOptions } from 'puppeteer';
+import { Browser, Page } from 'puppeteer';
 import { transliterate } from 'transliteration';
 import piexif, { TagValues, IExifElement, IExif } from 'piexif-ts';
 import fetch from 'node-fetch';
 
 import type { ProjectData, UserState, BehanceConstants } from './types.js';
-import { behanceConstants } from './configs/puppeteer.js';
 
 /* =============================================================
 Electron utils
@@ -278,11 +277,11 @@ export function createFileIfNotExists(filePath: string) {
 }
 
 // Read text file to array
-export function readTextFileToArray(fileName: string) {
+export function readTextFileToArray(filePath: string) {
   let linesArray: string[] = [];
 
   try {
-    const fileContent = fs.readFileSync(fileName, 'utf-8');
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
     linesArray = fileContent.trim().split(getNewLineSymbol());
 
   } catch (error: any) {

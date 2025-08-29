@@ -132,7 +132,7 @@ async function scrollToBottom() {
 }
 // Get projects urls from moodboard/profiles/likes pages
 async function collectProjectsUrlsFromPage(url) {
-    const { downloadModulesAsGalleries, turboMode, timeoutBetweenPagesInTurboMode } = userState;
+    const { downloadModulesAsGalleries } = userState;
     const ew = appState.electronWindow;
     const page = appState.page;
     if (!ew || !page) {

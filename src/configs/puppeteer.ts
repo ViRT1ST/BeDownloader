@@ -39,7 +39,9 @@ export const behanceConstants = {
     'creative_cloud',
     'creative_sdk',
     'gnav',
-    'openid',
-    'sao.cce_private'
+    'ims_cai.social.read',
+    'ims_cai.social.workplace.read',
+    'ims_cai.verifiedId.read',
+    'openid,sao.cce_private'
   ].join(',')
 };

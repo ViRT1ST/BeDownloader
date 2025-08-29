@@ -215,10 +215,10 @@ export function createFileIfNotExists(filePath) {
     }
 }
 // Read text file to array
-export function readTextFileToArray(fileName) {
+export function readTextFileToArray(filePath) {
     let linesArray = [];
     try {
-        const fileContent = fs.readFileSync(fileName, 'utf-8');
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
         linesArray = fileContent.trim().split(getNewLineSymbol());
     }
     catch (error) {

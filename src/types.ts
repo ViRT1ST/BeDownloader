@@ -1,6 +1,5 @@
 import { BrowserWindow } from 'electron';
-import { Browser, Page } from 'puppeteer';
-import { WaitForOptions } from 'puppeteer';
+import { Browser, Page, WaitForOptions } from 'puppeteer';
 
 export type AppState = {
   electronWindow: BrowserWindow | null;

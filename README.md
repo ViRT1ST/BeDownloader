@@ -33,7 +33,7 @@ Written with Electron, Puppeteer and other JS libraries.
 > Default is "false".
 
 > **downloadModulesAsGalleries**\
-> If set to "true", all individual images saved in moodboards will be downloaded as a full project with all images.\
+> If set to "true", all individual images saved in moodboards will be downloaded as a full projects with all images.\
 > Default is "false".
 
 > **showBrowser**\

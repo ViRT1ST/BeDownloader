@@ -1,7 +1,10 @@
 # Skip
 .backups/
-release-builds/
 \[chrome-win64-131.0.6778.204\]/
-
-# Dependency directories
+dist/
 node_modules/
+release-builds/
+
+
+
+
