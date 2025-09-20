@@ -51,6 +51,7 @@ function updateStatusInfo(message) {
     if (!ew) {
         return;
     }
+    console.log(message);
     sendToRenderer(ew, 'update-status-info', { message });
 }
 /* =============================================================
@@ -69,7 +70,7 @@ async function auth() {
     try {
         const timeout = turboMode ? timeoutBetweenPagesInTurboMode : betweenPagesDelayDefault;
         // Go to main page
-        updateStatusInfo('loading Behance main page...');
+        updateStatusInfo('loading Behance main page... (please wait)');
         await navigateToUrl(page, mainPageUrl, userState, behanceConstants);
         // Use user token
         updateStatusInfo('authenticating by user token...');
@@ -116,10 +117,10 @@ async function scrollToBottom() {
                 window.scrollBy(0, scrollStep);
                 // Delay
                 await new Promise((resolve) => setTimeout(resolve, delayBetweenScrolls));
-                // Exit if scroll has reached the bottom 3 times
+                // Exit if scroll has reached the bottom 10 times
                 if (scrollTop + clientHeight >= scrollHeight - 1) {
                     reachedBottomTimes += 1;
-                    if (reachedBottomTimes >= 3) {
+                    if (reachedBottomTimes >= 10) {
                         break;
                     }
                 }
@@ -143,7 +144,7 @@ async function collectProjectsUrlsFromPage(url) {
         updateStatusInfo(`loading page [${formatUrlForUi(url, 45)}] ...`);
         await navigateToUrl(page, url, userState, behanceConstants);
         // Scrolling
-        updateStatusInfo(`scrolling page to get all projects (can take some time)...`);
+        updateStatusInfo(`scrolling moodboard to get all projects (can take some time)...`);
         await scrollToBottom();
         await wait(1000);
         // Getting projects urls
@@ -198,7 +199,7 @@ async function collectProjectsUrlsFromPage(url) {
                 return foundProjects;
             }
             catch (error) {
-                console.log(error.message);
+                // console.log(error.message);        
                 return;
             }
         }, gridSelectors, projectSelectors, downloadModulesAsGalleries);

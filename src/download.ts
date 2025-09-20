@@ -91,6 +91,7 @@ function updateStatusInfo(message: string) {
     return;
   }
 
+  console.log(message);
   sendToRenderer(ew, 'update-status-info', { message });
 }
 
@@ -115,7 +116,7 @@ async function auth() {
     const timeout = turboMode ? timeoutBetweenPagesInTurboMode : betweenPagesDelayDefault;
 
      // Go to main page
-    updateStatusInfo('loading Behance main page...');
+    updateStatusInfo('loading Behance main page... (please wait)');
     await navigateToUrl(page, mainPageUrl, userState, behanceConstants);
 
     // Use user token
@@ -169,10 +170,10 @@ async function scrollToBottom() {
         // Delay
         await new Promise((resolve) => setTimeout(resolve, delayBetweenScrolls));
   
-        // Exit if scroll has reached the bottom 3 times
+        // Exit if scroll has reached the bottom 10 times
         if (scrollTop + clientHeight >= scrollHeight - 1) {
           reachedBottomTimes += 1;
-          if (reachedBottomTimes >= 3) {
+          if (reachedBottomTimes >= 10) {
             break;
           }
         }
@@ -199,7 +200,7 @@ async function collectProjectsUrlsFromPage(url: string) {
     await navigateToUrl(page, url, userState, behanceConstants);
 
     // Scrolling
-    updateStatusInfo(`scrolling page to get all projects (can take some time)...`);
+    updateStatusInfo(`scrolling moodboard to get all projects (can take some time)...`);
     await scrollToBottom();
     await wait(1000);
 
@@ -264,8 +265,7 @@ async function collectProjectsUrlsFromPage(url: string) {
         return foundProjects;
 
       } catch (error: any) {
-        console.log(error.message);
-        
+        // console.log(error.message);        
         return;
       }
     }, gridSelectors, projectSelectors, downloadModulesAsGalleries);
@@ -402,7 +402,7 @@ async function gotoProjectPageAndCollectData(projectLink: ProjectLink) {
       }
     }, id, projectLink);
 
-  } catch (error) {
+  } catch (error: any) {
     return;
   }
 }

@@ -54,7 +54,9 @@ export type ProjectData = {
 
 export type BehanceConstants = {
   mainPageUrl: string
-  pageSelectorToWait: string;
+  pageSelectorToWaitForAllPages: string;
+  pageSelectorToWaitForMoodboards: string;
+  pageSelectorToWaitForProjects: string;
   pageSelectorTimeout: { timeout: number };
   pageWaitOptionsDefault: WaitForOptions,
   pageWaitOptionsTurbo: WaitForOptions,

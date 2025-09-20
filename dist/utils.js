@@ -82,15 +82,26 @@ export async function disableRequestsForMediaFiles(page) {
 export async function navigateToUrl(page, url, userState, behanceConstants) {
     if (page) {
         const { turboMode, timeoutBetweenPagesInTurboMode } = userState;
-        const { pageWaitOptionsTurbo, pageWaitOptionsDefault, pageSelectorToWait, pageSelectorTimeout, betweenPagesDelayDefault } = behanceConstants;
-        if (turboMode) {
-            await page.goto(url, pageWaitOptionsTurbo);
-            await wait(timeoutBetweenPagesInTurboMode);
+        const { pageWaitOptionsTurbo, pageWaitOptionsDefault, pageSelectorToWaitForAllPages, pageSelectorToWaitForMoodboards, pageSelectorToWaitForProjects, pageSelectorTimeout, betweenPagesDelayDefault } = behanceConstants;
+        const isProjectPage = url.includes('/gallery/');
+        const isMoodboardPage = url.includes('/moodboard/') || url.includes('/collection/');
+        if (!turboMode) {
+            await page.goto(url, pageWaitOptionsDefault);
+            // wait selector for all pages
+            await page.waitForSelector(pageSelectorToWaitForAllPages, pageSelectorTimeout);
+            // wait selector for moodboards (main container)
+            if (isMoodboardPage) {
+                await page.waitForSelector(pageSelectorToWaitForMoodboards, pageSelectorTimeout);
+            }
+            // wait selector for projects (bottom like button)
+            if (isProjectPage) {
+                await page.waitForSelector(pageSelectorToWaitForProjects, pageSelectorTimeout);
+            }
+            await wait(betweenPagesDelayDefault);
         }
         else {
-            await page.goto(url, pageWaitOptionsDefault);
-            await page.waitForSelector(pageSelectorToWait, pageSelectorTimeout);
-            await wait(betweenPagesDelayDefault);
+            await page.goto(url, pageWaitOptionsTurbo);
+            await wait(timeoutBetweenPagesInTurboMode);
         }
     }
 }

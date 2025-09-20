@@ -12,7 +12,9 @@ export const puppeteerLaunchOptions = {
 };
 export const behanceConstants = {
     mainPageUrl: 'https://www.behance.net/',
-    pageSelectorToWait: '.SearchTypeahead-searchInput-BMV',
+    pageSelectorToWaitForAllPages: '.SearchTypeahead-searchInput-BMV',
+    pageSelectorToWaitForMoodboards: '.collection-page-container',
+    pageSelectorToWaitForProjects: '.Project-appreciateBottomIcon-jmk',
     pageSelectorTimeout: { timeout: 30000 },
     pageWaitOptionsDefault: { waitUntil: 'networkidle0', timeout: 0 },
     pageWaitOptionsTurbo: { waitUntil: 'domcontentloaded', timeout: 0 },
@@ -38,6 +40,7 @@ export const behanceConstants = {
         'ims_cai.social.read',
         'ims_cai.social.workplace.read',
         'ims_cai.verifiedId.read',
-        'openid,sao.cce_private'
+        'openid',
+        'sao.cce_private'
     ].join(',')
 };
