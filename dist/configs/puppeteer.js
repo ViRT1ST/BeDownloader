@@ -12,12 +12,12 @@ export const puppeteerLaunchOptions = {
 };
 export const behanceConstants = {
     mainPageUrl: 'https://www.behance.net/',
-    pageSelectorToWaitForAllPages: '.SearchTypeahead-searchInput-BMV',
     pageSelectorToWaitForMoodboards: '.collection-page-container',
     pageSelectorToWaitForProjects: '.Project-appreciateBottomIcon-jmk',
     pageSelectorTimeout: { timeout: 30000 },
-    pageWaitOptionsDefault: { waitUntil: 'networkidle0', timeout: 0 },
-    pageWaitOptionsTurbo: { waitUntil: 'domcontentloaded', timeout: 0 },
+    pageWaitOptionsMainPage: { waitUntil: 'domcontentloaded', timeout: 0 },
+    pageWaitOptionsDefault: { waitUntil: 'networkidle2', timeout: 0 }, // networkidle0  0
+    pageWaitOptionsTurbo: { waitUntil: 'domcontentloaded', timeout: 0 }, // 0
     betweenPagesDelayDefault: 3000,
     betweenImagesDelay: 500,
     // Projects wrapper selectors

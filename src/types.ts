@@ -1,9 +1,12 @@
 import { BrowserWindow } from 'electron';
-import { Browser, Page, WaitForOptions } from 'puppeteer';
+import { BrowserType, chromium, BrowserContext, Page } from 'playwright';
+
+export type LaunchPersistentContextOptions =
+  Parameters<(typeof chromium)['launchPersistentContext']>[1];
 
 export type AppState = {
   electronWindow: BrowserWindow | null;
-  browser: Browser | null;
+  browser: BrowserContext | null;
   page: Page | null;
   projects: ProjectLink[];
   projectsTotal: number;
@@ -54,12 +57,12 @@ export type ProjectData = {
 
 export type BehanceConstants = {
   mainPageUrl: string
-  pageSelectorToWaitForAllPages: string;
   pageSelectorToWaitForMoodboards: string;
   pageSelectorToWaitForProjects: string;
   pageSelectorTimeout: { timeout: number };
-  pageWaitOptionsDefault: WaitForOptions,
-  pageWaitOptionsTurbo: WaitForOptions,
+  // pageWaitOptionsMainPage: WaitForOptions;
+  // pageWaitOptionsDefault: WaitForOptions,
+  // pageWaitOptionsTurbo: WaitForOptions,
   betweenPagesDelayDefault: number;
   betweenImagesDelay: number;
   gridSelectors: string[];

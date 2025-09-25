@@ -1,8 +1,11 @@
+// @ts-nocheck
 import puppeteer from 'puppeteer';
 import { userState } from './states/user.js';
 import { puppeteerLaunchOptions, behanceConstants } from './configs/puppeteer.js';
 import { appState, resetPuppeteerDataInState } from './states/app.js';
-import { wait, sendToRenderer, formatUrlForUi, makeValidBehanceUrl, getProjectImagesFromParsedImages, readTextFileToArray, navigateToUrl, closeBrowser, generateFilePathForImage, downloadImage, createDirectoryIfNotExists, disableRequestsForMediaFiles, addProjectUrlToHistoryFile, getInstalledChromeExecutablePath, getInstalledChromeUserProfilePath } from './utils.js';
+import { wait, sendToRenderer, getInstalledChromeExecutablePath, getInstalledChromeUserProfilePath, closeBrowser, disableRequestsForMediaFiles, closeAllOtherTabs, 
+// openNewTabAndSetAsActive,
+navigateToUrl, getProjectImagesFromParsedImages, makeValidBehanceUrl, formatUrlForUi, createDirectoryIfNotExists, readTextFileToArray, generateFilePathForImage, addProjectUrlToHistoryFile, downloadImage, } from './utils.js';
 /* =============================================================
 Destructed Behance constants
 ============================================================= */
@@ -57,6 +60,27 @@ function updateStatusInfo(message) {
 /* =============================================================
 Puppeteer actions
 ============================================================= */
+// Load main page
+async function goToMainPage() {
+    const ew = appState.electronWindow;
+    const browser = appState.browser;
+    const page = appState.page;
+    if (!ew || !browser || !page) {
+        return;
+    }
+    try {
+        // await wait(1000);
+        // await closeAllOtherTabs(browser, page);
+        // await wait(1000);
+        // Go to main page
+        updateStatusInfo('loading Behance main page... (please wait)');
+        await navigateToUrl(page, mainPageUrl, userState, behanceConstants);
+        // await closeAllOtherTabs(appState);
+    }
+    catch (error) {
+        return;
+    }
+}
 // Authenticate if user has token in config file
 async function auth() {
     const { turboMode, timeoutBetweenPagesInTurboMode } = userState;
@@ -69,25 +93,11 @@ async function auth() {
     }
     try {
         const timeout = turboMode ? timeoutBetweenPagesInTurboMode : betweenPagesDelayDefault;
-        // Go to main page
-        updateStatusInfo('loading Behance main page... (please wait)');
-        await navigateToUrl(page, mainPageUrl, userState, behanceConstants);
         // Use user token
-        updateStatusInfo('authenticating by user token...');
+        updateStatusInfo('authenticating by user token... (please wait)');
         await page.evaluate(async (tokenKey, tokenValue) => {
             try {
                 localStorage.setItem(tokenKey, tokenValue);
-            }
-            catch (error) {
-                return;
-            }
-        }, tokenKey, tokenValue);
-        await wait(timeout);
-        // Reload main page
-        updateStatusInfo('reloading page after authenticating...');
-        await page.evaluate(async () => {
-            try {
-                // localStorage.setItem(tokenKey, tokenValue);
                 location.reload();
             }
             catch (error) {
@@ -109,7 +119,7 @@ async function scrollToBottom() {
     await page.evaluate(async () => {
         try {
             const scrollStep = 500;
-            const delayBetweenScrolls = 500;
+            const delayBetweenScrolls = 200;
             let reachedBottomTimes = 0;
             while (true) {
                 const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
@@ -117,10 +127,10 @@ async function scrollToBottom() {
                 window.scrollBy(0, scrollStep);
                 // Delay
                 await new Promise((resolve) => setTimeout(resolve, delayBetweenScrolls));
-                // Exit if scroll has reached the bottom 10 times
+                // Exit if scroll has reached the bottom 50 times
                 if (scrollTop + clientHeight >= scrollHeight - 1) {
                     reachedBottomTimes += 1;
-                    if (reachedBottomTimes >= 10) {
+                    if (reachedBottomTimes >= 50) {
                         break;
                     }
                 }
@@ -130,9 +140,12 @@ async function scrollToBottom() {
             return;
         }
     });
+    await wait(1000);
 }
 // Get projects urls from moodboard/profiles/likes pages
 async function collectProjectsUrlsFromPage(url) {
+    // await openNewTabAndSetAsActive(appState);
+    await wait(500);
     const { downloadModulesAsGalleries } = userState;
     const ew = appState.electronWindow;
     const page = appState.page;
@@ -148,7 +161,7 @@ async function collectProjectsUrlsFromPage(url) {
         await scrollToBottom();
         await wait(1000);
         // Getting projects urls
-        return page.evaluate(async (gridSelectors, projectSelectors, downloadModulesAsGalleries) => {
+        const projectsUrls = await page.evaluate(async (gridSelectors, projectSelectors, downloadModulesAsGalleries) => {
             try {
                 const foundProjects = [];
                 // Get all grid elements
@@ -203,6 +216,8 @@ async function collectProjectsUrlsFromPage(url) {
                 return;
             }
         }, gridSelectors, projectSelectors, downloadModulesAsGalleries);
+        // await closeAllOtherTabs(appState);
+        return projectsUrls;
     }
     catch (error) {
         return;
@@ -268,6 +283,8 @@ export async function generateProjectsList(urls) {
 }
 // Go to project page and collect data
 async function gotoProjectPageAndCollectData(projectLink) {
+    await openNewTabAndSetAsActive(appState);
+    await wait(500);
     const ew = appState.electronWindow;
     const page = appState.page;
     const id = projectLink.projectUrl.split('/')[4];
@@ -279,7 +296,7 @@ async function gotoProjectPageAndCollectData(projectLink) {
         updateStatusInfo(`loading project page [${id}] to collect its data and images...`);
         await navigateToUrl(page, projectLink.projectUrl, userState, behanceConstants);
         // Collect project data
-        return page.evaluate(async (id, projectLink) => {
+        const projectData = await page.evaluate(async (id, projectLink) => {
             try {
                 const { projectVariant, projectUrl, projectImage } = projectLink;
                 function getMetaProperty(propertyName) {
@@ -316,6 +333,8 @@ async function gotoProjectPageAndCollectData(projectLink) {
                 return;
             }
         }, id, projectLink);
+        await closeAllOtherTabs(appState);
+        return projectData;
     }
     catch (error) {
         return;
@@ -360,41 +379,46 @@ export async function downloadProjects() {
     for (const project of appState.projects) {
         if (appState.isAborted)
             break;
-        let projectData = await gotoProjectPageAndCollectData(project);
-        // Skip project if no data (can be caused by network errors)
-        if (!projectData) {
-            appState.projectsFailed += 1;
-            updateCompletedInfo();
-            console.log('gotoProjectPageAndCollectData(): Failed (projectData is undefined)');
-            console.log('gotoProjectPageAndCollectData(): This can happen if project is for adults');
-            console.log('gotoProjectPageAndCollectData(): Use your Behance token and try again');
-            continue;
-        }
-        // Update project data with only project images (filter out other images)
-        projectData = {
-            ...projectData,
-            projectImages: getProjectImagesFromParsedImages(projectData.projectImages)
-        };
-        const { projectId, projectUrl, projectImages } = projectData;
-        // Download images of current project
-        for (let i = 0; i < projectImages.length; i++) {
-            if (appState.isAborted) {
+        try {
+            let projectData = await gotoProjectPageAndCollectData(project);
+            // Skip project if no data (can be caused by network errors)
+            if (!projectData) {
+                appState.projectsFailed += 1;
                 updateCompletedInfo();
-                break;
+                console.log('gotoProjectPageAndCollectData(): Failed (projectData is undefined)');
+                console.log('gotoProjectPageAndCollectData(): This can happen if project is for adults');
+                console.log('gotoProjectPageAndCollectData(): Use your Behance token and try again');
+                continue;
             }
-            updateStatusInfo(`downloading project ${projectId}, image: ${i + 1}/${projectImages.length}`);
-            const imageUrl = projectImages[i];
-            const imageFilePath = generateFilePathForImage(projectData, imageUrl, i + 1, downloadFolder);
-            await downloadImage(projectData, imageUrl, imageFilePath);
-            await wait(betweenImagesDelay);
+            // Update project data with only project images (filter out other images)
+            projectData = {
+                ...projectData,
+                projectImages: getProjectImagesFromParsedImages(projectData.projectImages)
+            };
+            const { projectId, projectUrl, projectImages } = projectData;
+            // Download images of current project
+            for (let i = 0; i < projectImages.length; i++) {
+                if (appState.isAborted) {
+                    updateCompletedInfo();
+                    break;
+                }
+                updateStatusInfo(`downloading project ${projectId}, image: ${i + 1}/${projectImages.length}`);
+                const imageUrl = projectImages[i];
+                const imageFilePath = generateFilePathForImage(projectData, imageUrl, i + 1, downloadFolder);
+                await downloadImage(projectData, imageUrl, imageFilePath);
+                await wait(betweenImagesDelay);
+            }
+            if (!appState.isAborted) {
+                appState.projectsCompleted += 1;
+                updateCompletedInfo();
+                if (project.projectVariant === 'gallery') {
+                    appState.historyList.push(projectUrl);
+                    addProjectUrlToHistoryFile(projectUrl, userState.historyFile);
+                }
+            }
         }
-        if (!appState.isAborted) {
-            appState.projectsCompleted += 1;
-            updateCompletedInfo();
-            if (project.projectVariant === 'gallery') {
-                appState.historyList.push(projectUrl);
-                addProjectUrlToHistoryFile(projectUrl, userState.historyFile);
-            }
+        catch (error) {
+            console.log('Unknown error in downloadProjects():', error?.message);
         }
     }
 }
@@ -407,6 +431,7 @@ export async function runDownloadTask(urls) {
     createDirectoryIfNotExists(userState.downloadFolder);
     await launchBrowser();
     await disableRequestsForMediaFiles(appState.page);
+    await goToMainPage();
     await auth();
     await generateProjectsList(urls);
     await downloadProjects();

@@ -1,6 +1,7 @@
 # Skip
 .backups/
 \[chrome-win64-131.0.6778.204\]/
+\[chrome-win64-140.0.7339.16\]/
 dist/
 node_modules/
 release-builds/

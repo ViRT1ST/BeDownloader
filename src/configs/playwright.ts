@@ -1,27 +1,29 @@
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { WaitForOptions } from 'puppeteer';
 
-function getExecutablePath() {
-  const portablePath = path.join(process.cwd(), '[chrome-win64-131.0.6778.204]', 'chrome.exe');
+import { LaunchPersistentContextOptions } from '../types';
+
+// [chrome-win64-131.0.6778.204]
+// [chrome-win64-140.0.7339.16]
+function getPortableChromeExecutablePath() {
+  const portablePath = path.join(process.cwd(), '[chrome-win64-140.0.7339.16]', 'chrome.exe');
   return fs.existsSync(portablePath) ? portablePath : undefined;
 } 
   
-export const puppeteerLaunchOptions = {
+export const contextOptions: LaunchPersistentContextOptions = {
+  channel: 'chrome',
+  executablePath: getPortableChromeExecutablePath(),
   args: ['--start-maximized', '--disable-gpu'],
-  defaultViewport: { width: 1920, height: 1080 },
-  executablePath: getExecutablePath(),
   headless: true,
+  viewport: null,
+  locale: 'en-US'
 };
 
 export const behanceConstants = {
   mainPageUrl: 'https://www.behance.net/',
-  pageSelectorToWaitForAllPages: '.SearchTypeahead-searchInput-BMV',
   pageSelectorToWaitForMoodboards: '.collection-page-container',
   pageSelectorToWaitForProjects: '.Project-appreciateBottomIcon-jmk',
   pageSelectorTimeout: { timeout: 30000 },
-  pageWaitOptionsDefault: { waitUntil: 'networkidle0', timeout: 0 } as WaitForOptions,
-  pageWaitOptionsTurbo: { waitUntil: 'domcontentloaded', timeout: 0 } as WaitForOptions,
   betweenPagesDelayDefault: 3000,
   betweenImagesDelay: 500,
   // Projects wrapper selectors

@@ -2,7 +2,7 @@ BeDownloader
 ===
 
 Bulk image downloader for Behance URLs (projects, moodboards, profiles, likes, modules).\
-Written with Electron, Puppeteer and other JS libraries.
+Written with Electron, Playwright and other JS libraries.
 
 ## Features
 
@@ -39,30 +39,10 @@ Written with Electron, Puppeteer and other JS libraries.
 > **showBrowser**\
 > If set to "true", version of Chrome included with the app will be visible.\
 > Chrome is used in app for scraping information from projects on Behance site.\
-> Default is "false". Not recommended to use "true" (can cause issues with scraping data).
-
-> **useSystemInstalledChrome**\
-> if set to "true" then your Chrome installed in Windows will be used for scraping data.\
-> if you want use your Chrome with all your settings, cookies and plugins then you can try this.\
-> This for Windows users only and may not work at all (if no Chrome installed or it's version is too old).\
-> Browser must be closed before app run to work.\
-> Default is "false". 
-
-> **turboMode**\
-> Alternate mode for navigating between pages.\
-> if set to "true" it will use option "timeoutBetweenPagesInTurboMode" for timeouts.\
-> This can work better for people with old hardware.\
-> Default is "false".
-
-> **timeoutBetweenPagesInTurboMode**\
-> Number in milliseconds.\
-> "5000" will be ok for fast connections and fast computers.\
-> On slow connections or with old computers maybe need to increase to "20000" or higher.\
-> Default is "10000" (10 seconds).
+> Default is "true". If you don't need to see page navigation processes, just set it to "false".\ 
 
 > **localStorageToken**\
 > Required for downloading adult projects.\
-> Or you can use "useSystemInstalledChrome" option and use your Chrome where you are authorized in Behance.\
 > Default is "none". 
 
 

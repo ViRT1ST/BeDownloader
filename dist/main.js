@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import { userState, createUserFilesIfTheyDontExist, loadUserSettingsFromFile, saveUserSettingsToFile } from './states/user.js';
 import { electronSettings, pathToIndexHtml } from './configs/electron.js';
 import { appState } from './states/app.js';
-import { runDownloadTask } from './download.js';
+import { launchProcessingTask } from './download-pw.js';
 import { closeBrowser } from './utils.js';
 /* =============================================================
 First actions on app start
@@ -52,12 +52,14 @@ ipcMain.on('update-destination-folder', () => {
 });
 // Invokes after download button click
 ipcMain.on('start-download-task', (event, { urls }) => {
-    runDownloadTask(urls);
+    launchProcessingTask(urls);
 });
 // Invokes after cancel button click
 ipcMain.on('abort-download-task', async (event) => {
     appState.isAborted = true;
-    closeBrowser(appState.browser);
+    if (appState.browser) {
+        await closeBrowser(appState.browser);
+    }
 });
 // Invokes after destination button click
 ipcMain.on('open-select-directory-dialog', async (event) => {

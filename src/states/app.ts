@@ -14,8 +14,8 @@ export const appState: AppState = {
   isAborted: false
 };
 
-// Reset puppeteer and downloads related data
-export function resetPuppeteerDataInState() {
+// Reset playwright and downloads related data
+export function resetPlaywrightDataInState() {
   appState.browser = null;
   appState.page = null;
   appState.projects = [];

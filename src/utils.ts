@@ -5,12 +5,23 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 
 import { BrowserWindow } from 'electron';
-import { Browser, Page } from 'puppeteer';
+import { Page, BrowserContext } from 'playwright';
 import { transliterate } from 'transliteration';
 import piexif, { TagValues, IExifElement, IExif } from 'piexif-ts';
 import fetch from 'node-fetch';
 
-import type { ProjectData, UserState, BehanceConstants } from './types.js';
+import type { ProjectData, UserState, BehanceConstants, AppState } from './types.js';
+
+/* =============================================================
+Promises utils
+============================================================= */
+
+// Waiting function for delaying between actions
+export async function wait(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 /* =============================================================
 Electron utils
@@ -24,7 +35,7 @@ export function sendToRenderer(electronWindow: BrowserWindow, channel: string, d
 }
 
 /* =============================================================
-Puppeteer utils
+Playwright utils
 ============================================================= */
 
 // Get path of installed Chrome executable (Windows only)
@@ -49,22 +60,8 @@ export function getInstalledChromeUserProfilePath() {
   return fs.existsSync(path) ? path : null;
 }
 
-// Kill browser process (causing errors in console)
-export async function killPuppeteer(browser: Browser | null) {
-  try {
-    const browserProcess = browser?.process();
-
-    if (browserProcess) {
-      browserProcess.kill();
-    }
-
-  } catch (error: any) {
-    console.log(`Failed to kill browser process | ${error?.message}`);
-  }
-}
-
 // Prefer way to close browser
-export async function closeBrowser(browser: Browser | null) {
+export async function closeBrowser(browser: BrowserContext) {
   if (browser) {
     try {
       await browser.close();
@@ -75,85 +72,42 @@ export async function closeBrowser(browser: Browser | null) {
   }
 }
 
-// Disable requests for media files for current page
-export async function disableRequestsForMediaFiles(page: Page | null) {
+// Disable unwanted requests for current page
+export async function disableUnwantedRequests(page: Page | null) {
   if (!page) {
     return;
   }
 
   try {
-    await page.setRequestInterception(true);
-    page.on('request', (req) => {
-      if (/^(image|media)$/.test(req.resourceType())) {
-        req.abort();
+    await page.route('**/*', route => {
+      const type = route.request().resourceType();
+      const blocked = ['image', 'media', 'stylesheet', 'font'];
+      if (blocked.includes(type)) {
+        route.abort();
       } else {
-        req.continue();
+        route.continue();
       }
-    });
+    })
+
   } catch (error: any) {
-    console.log(`Failed to disable requests for media files | ${error?.message}`);
+    console.log(`Failed to disable unwanted requests for current page | ${error?.message}`);
   }
 }
 
-export async function navigateToUrl(
-  page: Page,
-  url: string,
-  userState: UserState,
-  behanceConstants: BehanceConstants
-) {
-  if (page) {
-    const {
-      turboMode,
-      timeoutBetweenPagesInTurboMode
-    } = userState;
-
-    const {
-      pageWaitOptionsTurbo,
-      pageWaitOptionsDefault,
-      pageSelectorToWaitForAllPages,
-      pageSelectorToWaitForMoodboards,
-      pageSelectorToWaitForProjects,
-      pageSelectorTimeout,
-      betweenPagesDelayDefault
-    } = behanceConstants;
-
-    const isProjectPage = url.includes('/gallery/');
-    const isMoodboardPage = url.includes('/moodboard/') || url.includes('/collection/');
-
-    if (!turboMode) {
-      await page.goto(url, pageWaitOptionsDefault);
-
-      // wait selector for all pages
-      await page.waitForSelector(pageSelectorToWaitForAllPages, pageSelectorTimeout);
-
-      // wait selector for moodboards (main container)
-      if (isMoodboardPage) {
-        await page.waitForSelector(pageSelectorToWaitForMoodboards, pageSelectorTimeout);
-      }
-
-      // wait selector for projects (bottom like button)
-      if (isProjectPage) {
-        await page.waitForSelector(pageSelectorToWaitForProjects, pageSelectorTimeout);
-      }
-
-      await wait(betweenPagesDelayDefault);
-
-    } else {
-      await page.goto(url, pageWaitOptionsTurbo);
-      await wait(timeoutBetweenPagesInTurboMode);
-    }
+// Set extra HTTP headers for current page
+export async function setExtraHTTPHeaders(page: Page | null) {
+  if (!page) {
+    return;
   }
-}
 
-/* =============================================================
-Promises utils
-============================================================= */
+  try {
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'en-US,en;q=0.9'
+    });
 
-// Waiting function for delaying between actions
-export async function wait(ms: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
+  } catch (error: any) {
+    console.log(`Failed to disable unwanted requests for current page | ${error?.message}`);
+  }
 }
 
 /* =============================================================

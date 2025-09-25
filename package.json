@@ -1,7 +1,7 @@
 {
   "name": "bedownloader",
   "productName": "BeDownloader",
-  "version": "2.6.0",
+  "version": "3.0.0",
   "author": "ViRT1ST",
   "license": "ISC",
   "description": "",
@@ -19,6 +19,7 @@
     "ini": "^5.0.0",
     "node-fetch": "^3.3.2",
     "piexif-ts": "^2.1.0",
+    "playwright": "^1.55.0",
     "puppeteer": "^23.11.1",
     "transliteration": "^2.3.5"
   },
